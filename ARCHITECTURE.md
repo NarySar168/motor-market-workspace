@@ -1,5 +1,6 @@
 
-## Architecture
+
+```text
 motor-market-workspace
 ├── turbo.json          # Monorepo build pipeline and task orchestration
 ├── README.md           # Setup and local installation guide
@@ -12,6 +13,8 @@ motor-market-workspace
     ├── ui/             # Shared React component library
     ├── eslint-config/  # Shared linting rules
     └── typescript-config/# Shared TS config
+
+```
 
 ---
 
