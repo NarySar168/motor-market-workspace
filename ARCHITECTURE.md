@@ -1,4 +1,4 @@
-
+# Architecture
 
 ```text
 motor-market-workspace
@@ -42,7 +42,7 @@ Motor Market is a cross-platform monorepo leveraging a Rust backend for high per
 
 ## 2. Expanded Database Schema (PostgreSQL)
 
-The database is strictly relational. To support custom payments, currency toggling, and internationalization (i18n), the data is normalized across the following core tables.
+The database is strictly relational. To support custom payments, currency toggling, internationalization (i18n), and robust media management, the data is normalized across the following core tables.
 
 ### `users`
 
@@ -53,9 +53,9 @@ Tracks users, external buyers, and role-based accounts.
 * `first_name` (Varchar)
 * `last_name` (Varchar)
 
-### `listings` & `listing_translations`
+### `listings` & `listing_images`
 
-Separates universal vehicle facts from localized descriptions to support English, Khmer, and Chinese.
+Separates vehicle metadata from the dynamic media gallery.
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -64,6 +64,16 @@ Separates universal vehicle facts from localized descriptions to support English
 | `price_amount` | Integer | Price in smallest unit (e.g., cents) |
 | `currency` | Varchar | Base currency of the listing (e.g., `USD`) |
 | `year` | Integer | Vehicle manufacturing year |
+
+| Column | Type | Description |
+| --- | --- | --- |
+| `id` | UUID (PK) | Unique image identifier |
+| `listing_id` | UUID (FK) | References `listings.id` (ON DELETE CASCADE) |
+| `image_url` | Text | Secure Cloudinary URL |
+
+### `listing_translations`
+
+Separates universal vehicle facts from localized descriptions to support English, Khmer, and Chinese.
 
 | Column | Type | Description |
 | --- | --- | --- |
@@ -147,5 +157,7 @@ User-generated vehicle descriptions are automatically translated using an AI pip
 1. **Submit:** An admin submits a new listing in their native language via `POST /api/listings`.
 2. **Core Insert:** The Rust API saves the numerical data (price, year) and the original text instantly.
 3. **Async Processing:** The API spawns a background thread (`tokio::spawn`) and returns a `200 OK` to the frontend so the UI remains fast and responsive.
-4. **AI API Call:** On the background thread, the server calls the OpenAI API (e.g., `gpt-4o-mini`) to translate the title and description into the remaining supported languages.
+4. **AI API Call:** On the background thread, the server calls the **Gemini API** to seamlessly translate the title and description into the remaining supported languages (optimized for accurate Khmer localization).
 5. **Translation Insert:** The translated strings are inserted as new rows into the `listing_translations` table.
+
+```
