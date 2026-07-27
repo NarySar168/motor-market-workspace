@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList, SafeAreaView, Alert, Modal, TextInput, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 
-const RUST_API_URL = "http://192.168.0.28:8080/api/listings";
+const RUST_API_URL = "http://192.168.0.34:8080/api/listings";
 
 export default function AdminScreen() {
   const [feed, setFeed] = useState<any[]>([]);

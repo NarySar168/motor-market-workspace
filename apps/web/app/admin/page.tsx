@@ -6,6 +6,26 @@ export default function AdminDashboard() {
   const [listings, setListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // --- CONFIGURATION ---
+  const CLOUD_NAME = "dozcgwtqo"; 
+  const UPLOAD_PRESET = "motor_market_cars";
+  const RUST_API_URL = "http://localhost:8080/api/listings"; // Use your IP (e.g., 192.168.0.34) if testing on LAN
+
+  // --- ADD LISTING STATES ---
+  const [newMake, setNewMake] = useState("");
+  const [newModel, setNewModel] = useState("");
+  const [newYear, setNewYear] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [newType, setNewType] = useState("car");
+  const [newDescription, setNewDescription] = useState("");
+  const [newSellerEmail, setNewSellerEmail] = useState("");
+  
+  // Image Upload States
+  const [images, setImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
+
   // --- MODAL STATES ---
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [editingListing, setEditingListing] = useState<any | null>(null);
@@ -19,7 +39,7 @@ export default function AdminDashboard() {
 
   const fetchListings = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/listings");
+      const res = await fetch(RUST_API_URL);
       const data = await res.json();
       setListings(data);
     } catch (error) {
@@ -33,13 +53,97 @@ export default function AdminDashboard() {
     fetchListings();
   }, []);
 
+  // --- LOCAL IMAGE PREVIEW LOGIC ---
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setImages(filesArray);
+      
+      // Use FileReader instead of URL.createObjectURL to prevent Next.js crashes
+      const previewPromises = filesArray.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      });
+
+      const previews = await Promise.all(previewPromises);
+      setPreviewUrls(previews);
+    }
+  };
+
+  // --- CREATE LOGIC (DATA + MULTIPLE IMAGES) ---
+  const handleCreateListing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setUploadStatus("Uploading photos to Cloudinary...");
+
+    try {
+      // 1. Upload all images to Cloudinary simultaneously
+      const uploadedUrls = await Promise.all(
+        images.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', UPLOAD_PRESET);
+
+          const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData,
+          });
+          
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error?.message);
+          return data.secure_url; // Return the permanent URL
+        })
+      );
+
+      setUploadStatus("Saving to Rust Database...");
+
+      // 2. Prepare payload
+      const payload = {
+        make: newMake,
+        model: newModel,
+        year: parseInt(newYear),
+        price: Math.round(parseFloat(newPrice) * 100), 
+        vehicle_type: newType,
+        description: newDescription,
+        seller_email: newSellerEmail,
+        image_urls: uploadedUrls.length > 0 ? uploadedUrls : [],
+      };
+
+      // 3. Send to Rust Backend
+      const res = await fetch(RUST_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        // Clear form entirely
+        setNewMake(""); setNewModel(""); setNewYear(""); setNewPrice("");
+        setNewDescription(""); setNewSellerEmail(""); 
+        setImages([]); setPreviewUrls([]);
+        fetchListings(); 
+      } else {
+        alert("Failed to create listing.");
+      }
+    } catch (error) {
+      console.error("Error creating listing:", error);
+      alert("Error connecting to server or Cloudinary.");
+    } finally {
+      setIsSubmitting(false);
+      setUploadStatus("");
+    }
+  };
+
   // --- EDIT LOGIC ---
   const openEditModal = (car: any) => {
     setEditingListing(car);
     setEditMake(car.make);
     setEditModel(car.model);
     setEditYear(car.year.toString());
-    setEditPrice((car.price / 100).toString()); // Convert cents to dollars for the input
+    setEditPrice((car.price / 100).toString());
     setEditDescription(car.description || "");
     setEditVehicleType(car.vehicle_type || "Car");
   };
@@ -49,14 +153,14 @@ export default function AdminDashboard() {
     setIsSaving(true);
     
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${editingListing.id}`, {
+      const res = await fetch(`${RUST_API_URL}/${editingListing.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           make: editMake,
           model: editModel,
           year: parseInt(editYear),
-          price: Math.round(parseFloat(editPrice) * 100), // Convert dollars back to cents for DB
+          price: Math.round(parseFloat(editPrice) * 100), 
           description: editDescription,
           vehicle_type: editVehicleType.toLowerCase(),
         }),
@@ -65,7 +169,7 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error("Failed to update on server");
       
       setEditingListing(null);
-      fetchListings(); // Refresh the table
+      fetchListings(); 
     } catch (error) {
       console.error("Edit failed:", error);
       alert("Failed to update the vehicle.");
@@ -78,9 +182,9 @@ export default function AdminDashboard() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this vehicle? This cannot be undone.")) return;
 
-    setListings((current) => current.filter((car) => car.id !== id)); // Optimistic UI
+    setListings((current) => current.filter((car) => car.id !== id)); 
     try {
-      const res = await fetch(`http://localhost:8080/api/listings/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${RUST_API_URL}/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error("Failed to delete on server");
     } catch (error) {
       console.error("Delete failed:", error);
@@ -92,9 +196,88 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-6xl mx-auto p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">NR MotorMarket Admin</h1>
         <p className="text-slate-500 mt-1">Manage your active vehicle inventory.</p>
       </header>
+
+      {/* --- POST NEW VEHICLE FORM --- */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+        <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-5 border-b border-slate-100 pb-2">
+          + Post New Vehicle
+        </h2>
+        <form onSubmit={handleCreateListing} className="flex flex-col gap-4">
+          
+          {/* Row 1: Core Details */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Year</label>
+              <input required type="number" placeholder="e.g. 2024" value={newYear} onChange={e => setNewYear(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Make</label>
+              <input required type="text" placeholder="e.g. Audi" value={newMake} onChange={e => setNewMake(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Model</label>
+              <input required type="text" placeholder="e.g. Q7" value={newModel} onChange={e => setNewModel(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Price ($)</label>
+              <input required type="number" step="0.01" placeholder="e.g. 45000" value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+            </div>
+          </div>
+
+          {/* Row 2: Meta Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
+              <select value={newType} onChange={e => setNewType(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="car">🚗 Car</option>
+                <option value="motorcycle">🏍️ Motorcycle</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Seller Email</label>
+              <input required type="email" placeholder="seller@example.com" value={newSellerEmail} onChange={e => setNewSellerEmail(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+            </div>
+          </div>
+
+          {/* Row 3: MULTIPLE PHOTO UPLOAD */}
+          <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Vehicle Photos (Select Multiple)</label>
+            <input 
+              type="file" 
+              multiple 
+              accept="image/*" 
+              onChange={handleFileChange} 
+              disabled={isSubmitting}
+              className="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wider file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer disabled:opacity-50" 
+            />
+            
+            {/* Image Preview Strip */}
+            {previewUrls.length > 0 && (
+              <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+                {previewUrls.map((url, idx) => (
+                  <img key={idx} src={url} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded-lg border border-slate-300 flex-shrink-0 shadow-sm" />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Row 4: Description & Submit */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Description</label>
+            <textarea placeholder="Vehicle Description..." value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none min-h-[80px] resize-none"></textarea>
+          </div>
+          
+          {uploadStatus && <p className="text-center font-bold text-slate-600 text-sm animate-pulse">{uploadStatus}</p>}
+          
+          <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold uppercase tracking-wider py-3.5 rounded-lg hover:bg-red-700 transition-colors mt-2 disabled:opacity-50 shadow-md">
+            {isSubmitting ? "Processing..." : "Publish Listing"}
+          </button>
+          
+        </form>
+      </div>
 
       {/* Data Table */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -117,11 +300,18 @@ export default function AdminDashboard() {
                 <tr key={car.id} className="hover:bg-slate-50 transition-colors">
                   <td className="p-4 flex items-center gap-4">
                     <div 
-                      className="w-16 h-12 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200"
+                      className="w-16 h-12 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200 relative group"
                       onClick={() => car.image_urls?.length && setZoomedImage(car.image_urls[0])}
                     >
                       {car.image_urls?.length ? (
-                        <img src={car.image_urls[0]} alt="car" className="w-full h-full object-cover" />
+                        <>
+                          <img src={car.image_urls[0]} alt="car" className="w-full h-full object-cover" />
+                          {car.image_urls.length > 1 && (
+                            <div className="absolute bottom-0 right-0 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-tl-lg">
+                              +{car.image_urls.length - 1}
+                            </div>
+                          )}
+                        </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">No Pic</div>
                       )}
