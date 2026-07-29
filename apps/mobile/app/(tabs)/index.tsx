@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList, SafeAreaView, Dimensions, Modal, ImageBackground, Animated, Easing } from 'react-native';
+import { LISTINGS_URL } from '../../constants/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(300, SCREEN_WIDTH * 0.78);
-const RUST_API_URL = "http://192.168.0.34:8080/api/listings"; // Remember to keep this updated with your IP!
+const RUST_API_URL = LISTINGS_URL;
 
 export default function FeedScreen() {
   const [feed, setFeed] = useState<any[]>([]);

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { LISTINGS_URL } from "@/lib/api";
 
 export default function PostVehicle() {
   const router = useRouter();
@@ -10,7 +11,7 @@ export default function PostVehicle() {
   const HARDCODED_USER_ID = "9b9a712f-205a-43d1-82e8-8dcf57071923"; 
   const CLOUD_NAME = "dozcgwtqo"; 
   const UPLOAD_PRESET = "motor_market_cars";
-  const RUST_API_URL = "http://localhost:8080/api/listings";
+  const RUST_API_URL = LISTINGS_URL;
 
   // --- STATE ---
   const [vehicleType, setVehicleType] = useState<'car' | 'motorcycle'>('car');

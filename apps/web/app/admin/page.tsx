@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { LISTINGS_URL } from "@/lib/api";
 
 export default function AdminDashboard() {
   const [listings, setListings] = useState<any[]>([]);
@@ -9,7 +10,8 @@ export default function AdminDashboard() {
   // --- CONFIGURATION ---
   const CLOUD_NAME = "dozcgwtqo"; 
   const UPLOAD_PRESET = "motor_market_cars";
-  const RUST_API_URL = "http://localhost:8080/api/listings"; // Use your IP (e.g., 192.168.0.34) if testing on LAN
+  const RUST_API_URL = LISTINGS_URL;
+  const HARDCODED_USER_ID = "9b9a712f-205a-43d1-82e8-8dcf57071923"; // Backend requires user_id; matches mobile
 
   // --- ADD LISTING STATES ---
   const [newMake, setNewMake] = useState("");
@@ -102,6 +104,7 @@ export default function AdminDashboard() {
 
       // 2. Prepare payload
       const payload = {
+        user_id: HARDCODED_USER_ID,
         make: newMake,
         model: newModel,
         year: parseInt(newYear),

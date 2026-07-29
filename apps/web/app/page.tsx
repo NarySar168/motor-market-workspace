@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { LISTINGS_URL } from "@/lib/api";
 
 interface Vehicle {
   id: string;
@@ -26,7 +27,7 @@ export default function Storefront() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/listings");
+        const res = await fetch(LISTINGS_URL);
         const data = await res.json();
         setListings(data);
       } catch (error) {

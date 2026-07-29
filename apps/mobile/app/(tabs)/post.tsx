@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useRouter } from 'expo-router';
+import { LISTINGS_URL } from '../../constants/api';
 
 export default function PostScreen() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function PostScreen() {
   const HARDCODED_USER_ID = "9b9a712f-205a-43d1-82e8-8dcf57071923"; 
   const CLOUD_NAME = "dozcgwtqo"; 
   const UPLOAD_PRESET = "motor_market_cars";
-  const RUST_API_URL = "http://192.168.0.28:8080/api/listings";
+  const RUST_API_URL = LISTINGS_URL;
 
   // --- STATE ---
   const [vehicleType, setVehicleType] = useState<'car' | 'motorcycle'>('car');

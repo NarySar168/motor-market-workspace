@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { LISTINGS_URL } from "@/lib/api";
 
 export default function ListingDetail() {
   const params = useParams();
@@ -27,7 +28,7 @@ export default function ListingDetail() {
             return;
         }
         
-        const res = await fetch(`http://localhost:8080/api/listings/${id}`);
+        const res = await fetch(`${LISTINGS_URL}/${id}`);
         if (!res.ok) throw new Error("Listing not found");
         const data = await res.json();
         setListing(data);
