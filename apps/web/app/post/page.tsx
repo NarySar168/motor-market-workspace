@@ -102,29 +102,29 @@ export default function PostVehicle() {
 
   return (
     <main className="max-w-3xl mx-auto p-8">
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-        <h1 className="text-3xl font-black text-slate-900 mb-6">Post a Vehicle</h1>
-        
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <h1 className="text-3xl font-black text-slate-900 dark:text-slate-50 mb-6">Post a Vehicle</h1>
+
         <form onSubmit={submitListing} className="space-y-6">
-          
+
           {/* Vehicle Type Toggle */}
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Vehicle Type</label>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Vehicle Type</label>
             <div className="flex gap-4">
-              <button type="button" onClick={() => setVehicleType('car')} className={`flex-1 py-3 rounded-xl font-bold border-2 transition-colors ${vehicleType === 'car' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🚗 Car</button>
-              <button type="button" onClick={() => setVehicleType('motorcycle')} className={`flex-1 py-3 rounded-xl font-bold border-2 transition-colors ${vehicleType === 'motorcycle' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🏍️ Motorcycle</button>
+              <button type="button" onClick={() => setVehicleType('car')} className={`flex-1 py-3 rounded-xl font-bold border-2 transition-colors ${vehicleType === 'car' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300' : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>🚗 Car</button>
+              <button type="button" onClick={() => setVehicleType('motorcycle')} className={`flex-1 py-3 rounded-xl font-bold border-2 transition-colors ${vehicleType === 'motorcycle' ? 'border-blue-600 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300' : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>🏍️ Motorcycle</button>
             </div>
           </div>
 
           {/* Photo Upload */}
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Photos</label>
-            <input type="file" multiple accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
-            
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Photos</label>
+            <input type="file" multiple accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 dark:file:bg-blue-950 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900 cursor-pointer" />
+
             {previewUrls.length > 0 && (
               <div className="flex gap-4 mt-4 overflow-x-auto pb-2">
                 {previewUrls.map((url, idx) => (
-                  <img key={idx} src={url} alt="preview" className="w-24 h-24 object-cover rounded-xl border border-slate-200 flex-shrink-0" />
+                  <img key={idx} src={url} alt="preview" className="w-24 h-24 object-cover rounded-xl border border-slate-200 dark:border-slate-800 flex-shrink-0" />
                 ))}
               </div>
             )}
@@ -133,30 +133,30 @@ export default function PostVehicle() {
           {/* Details Form */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Make</label>
-              <input type="text" required placeholder="e.g. Honda" value={make} onChange={(e) => setMake(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Make</label>
+              <input type="text" required placeholder="e.g. Honda" value={make} onChange={(e) => setMake(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Model</label>
-              <input type="text" required placeholder="e.g. Civic" value={model} onChange={(e) => setModel(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Model</label>
+              <input type="text" required placeholder="e.g. Civic" value={model} onChange={(e) => setModel(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Year</label>
-              <input type="number" required placeholder="e.g. 2024" value={year} onChange={(e) => setYear(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Year</label>
+              <input type="number" required placeholder="e.g. 2024" value={year} onChange={(e) => setYear(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Price (USD)</label>
-              <input type="number" required placeholder="e.g. 25000" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Price (USD)</label>
+              <input type="number" required placeholder="e.g. 25000" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Description</label>
-            <textarea placeholder="Tell buyers about this vehicle..." rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Description</label>
+            <textarea placeholder="Tell buyers about this vehicle..." rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
           </div>
 
           {/* Submit */}
-          {status && <p className="text-center font-bold text-slate-600">{status}</p>}
+          {status && <p className="text-center font-bold text-slate-600 dark:text-slate-400">{status}</p>}
           <button type="submit" disabled={isUploading} className={`w-full py-4 rounded-xl font-bold text-white transition-all ${isUploading ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'}`}>
             {isUploading ? "Uploading..." : "Post to Marketplace"}
           </button>

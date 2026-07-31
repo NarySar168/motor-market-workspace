@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, FlatList, SafeAreaView, Alert, Modal, TextInput, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { LISTINGS_URL } from '../../constants/api';
+import { useTheme } from '../../context/ThemeContext';
+import { ThemeColors } from '../../constants/theme';
 
 const RUST_API_URL = LISTINGS_URL;
 
@@ -9,6 +11,8 @@ export default function AdminScreen() {
   const [feed, setFeed] = useState<any[]>([]);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
   const navigation = useNavigation();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   // --- FULL EDIT MODAL STATE ---
   const [editingListing, setEditingListing] = useState<any | null>(null);
@@ -137,12 +141,12 @@ export default function AdminScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.header}>Admin Dashboard</Text>
-        <Text style={{ color: '#64748b', marginBottom: 15 }}>Manage your live inventory.</Text>
-        
+        <Text style={{ color: colors.muted, marginBottom: 15 }}>Manage your live inventory.</Text>
+
         {isLoadingFeed ? (
-          <ActivityIndicator size="large" color="#2563eb" style={{ marginTop: 50 }} />
+          <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 50 }} />
         ) : feed.length === 0 ? (
-          <Text style={{ textAlign: 'center', marginTop: 50, color: '#64748b' }}>No vehicles in inventory.</Text>
+          <Text style={{ textAlign: 'center', marginTop: 50, color: colors.muted }}>No vehicles in inventory.</Text>
         ) : (
           <FlatList
             data={feed}
@@ -212,7 +216,7 @@ export default function AdminScreen() {
                   onPress={submitEdit} 
                   disabled={isSaving}
                 >
-                  {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Save Changes</Text>}
+                  {isSaving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.saveButtonText}>Save Changes</Text>}
                 </TouchableOpacity>
               </ScrollView>
             )}
@@ -225,39 +229,39 @@ export default function AdminScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f8fafc' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: c.bg },
   container: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
-  header: { fontSize: 28, fontWeight: 'bold', color: '#0f172a', marginBottom: 5 },
-  adminCard: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: '#e2e8f0', alignItems: 'center', justifyContent: 'space-between' },
+  header: { fontSize: 28, fontWeight: 'bold', color: c.text, marginBottom: 5 },
+  adminCard: { flexDirection: 'row', backgroundColor: c.surface, padding: 15, borderRadius: 12, marginBottom: 15, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'space-between' },
   adminCardInfo: { flex: 1, paddingRight: 10 },
-  adminCardTitle: { fontSize: 16, fontWeight: 'bold', color: '#0f172a' },
+  adminCardTitle: { fontSize: 16, fontWeight: 'bold', color: c.text },
   adminCardPrice: { fontSize: 14, color: '#16a34a', fontWeight: '600', marginTop: 4 },
-  adminCardId: { fontSize: 12, color: '#94a3b8', marginTop: 4, fontFamily: 'monospace' },
+  adminCardId: { fontSize: 12, color: c.muted, marginTop: 4, fontFamily: 'monospace' },
   actionButtons: { flexDirection: 'row', gap: 8 },
-  editButton: { backgroundColor: '#eff6ff', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#bfdbfe' },
-  editButtonText: { color: '#2563eb', fontWeight: 'bold', fontSize: 14 },
-  deleteButton: { backgroundColor: '#fee2e2', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#f87171' },
-  deleteButtonText: { color: '#dc2626', fontWeight: 'bold', fontSize: 14 },
+  editButton: { backgroundColor: c.surfaceAlt, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: c.accent },
+  editButtonText: { color: c.accent, fontWeight: 'bold', fontSize: 14 },
+  deleteButton: { backgroundColor: c.surfaceAlt, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: c.primary },
+  deleteButtonText: { color: c.primary, fontWeight: 'bold', fontSize: 14 },
 
   // Edit Modal Styles
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.6)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 25, maxHeight: '90%' },
+  modalOverlay: { flex: 1, backgroundColor: c.overlay, justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: c.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 25, maxHeight: '90%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#0f172a' },
-  modalCloseText: { fontSize: 24, color: '#64748b', fontWeight: 'bold' },
-  label: { fontSize: 14, fontWeight: 'bold', color: '#475569', marginBottom: 8 },
-  input: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', padding: 15, borderRadius: 10, fontSize: 16, marginBottom: 15, color: '#0f172a' },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: c.text },
+  modalCloseText: { fontSize: 24, color: c.muted, fontWeight: 'bold' },
+  label: { fontSize: 14, fontWeight: 'bold', color: c.muted, marginBottom: 8 },
+  input: { backgroundColor: c.bg, borderWidth: 1, borderColor: c.border, padding: 15, borderRadius: 10, fontSize: 16, marginBottom: 15, color: c.text },
   textArea: { height: 100, textAlignVertical: 'top' },
   row: { flexDirection: 'row' },
-  saveButton: { backgroundColor: '#2563eb', padding: 18, borderRadius: 10, alignItems: 'center', marginTop: 5, marginBottom: 30 },
-  disabledButton: { backgroundColor: '#94a3b8' },
-  saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  saveButton: { backgroundColor: c.accent, padding: 18, borderRadius: 10, alignItems: 'center', marginTop: 5, marginBottom: 30 },
+  disabledButton: { backgroundColor: c.muted },
+  saveButtonText: { color: c.onPrimary, fontWeight: 'bold', fontSize: 16 },
 
   // Vehicle Type Toggle Styles
   typeSelector: { flexDirection: 'row', gap: 10, marginBottom: 15 },
-  typeButton: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: '#cbd5e1', alignItems: 'center', backgroundColor: '#f8fafc' },
-  typeButtonActive: { borderColor: '#2563eb', backgroundColor: '#eff6ff', borderWidth: 2 },
-  typeText: { fontSize: 14, color: '#64748b', fontWeight: '600' },
-  typeTextActive: { color: '#2563eb', fontWeight: 'bold' },
+  typeButton: { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: c.border, alignItems: 'center', backgroundColor: c.bg },
+  typeButtonActive: { borderColor: c.accent, backgroundColor: c.surfaceAlt, borderWidth: 2 },
+  typeText: { fontSize: 14, color: c.muted, fontWeight: '600' },
+  typeTextActive: { color: c.accent, fontWeight: 'bold' },
 });

@@ -199,13 +199,13 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-6xl mx-auto p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">NR MotorMarket Admin</h1>
-        <p className="text-slate-500 mt-1">Manage your active vehicle inventory.</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-50">NR MotorMarket Admin</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your active vehicle inventory.</p>
       </header>
 
       {/* --- POST NEW VEHICLE FORM --- */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
-        <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-5 border-b border-slate-100 pb-2">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-8">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-50 uppercase tracking-tight mb-5 border-b border-slate-100 dark:border-slate-800 pb-2">
           + Post New Vehicle
         </h2>
         <form onSubmit={handleCreateListing} className="flex flex-col gap-4">
@@ -213,55 +213,55 @@ export default function AdminDashboard() {
           {/* Row 1: Core Details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Year</label>
-              <input required type="number" placeholder="e.g. 2024" value={newYear} onChange={e => setNewYear(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Year</label>
+              <input required type="number" placeholder="e.g. 2024" value={newYear} onChange={e => setNewYear(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Make</label>
-              <input required type="text" placeholder="e.g. Audi" value={newMake} onChange={e => setNewMake(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Make</label>
+              <input required type="text" placeholder="e.g. Audi" value={newMake} onChange={e => setNewMake(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Model</label>
-              <input required type="text" placeholder="e.g. Q7" value={newModel} onChange={e => setNewModel(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Model</label>
+              <input required type="text" placeholder="e.g. Q7" value={newModel} onChange={e => setNewModel(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Price ($)</label>
-              <input required type="number" step="0.01" placeholder="e.g. 45000" value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Price ($)</label>
+              <input required type="number" step="0.01" placeholder="e.g. 45000" value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
           </div>
 
           {/* Row 2: Meta Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
-              <select value={newType} onChange={e => setNewType(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Type</label>
+              <select value={newType} onChange={e => setNewType(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                 <option value="car">🚗 Car</option>
                 <option value="motorcycle">🏍️ Motorcycle</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Seller Email</label>
-              <input required type="email" placeholder="seller@example.com" value={newSellerEmail} onChange={e => setNewSellerEmail(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Seller Email</label>
+              <input required type="email" placeholder="seller@example.com" value={newSellerEmail} onChange={e => setNewSellerEmail(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none" />
             </div>
           </div>
 
           {/* Row 3: MULTIPLE PHOTO UPLOAD */}
-          <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Vehicle Photos (Select Multiple)</label>
-            <input 
-              type="file" 
-              multiple 
-              accept="image/*" 
-              onChange={handleFileChange} 
+          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 p-4 rounded-xl">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Vehicle Photos (Select Multiple)</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileChange}
               disabled={isSubmitting}
-              className="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wider file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer disabled:opacity-50" 
+              className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wider file:bg-slate-800 dark:file:bg-slate-100 file:text-white dark:file:text-slate-900 hover:file:bg-slate-700 dark:hover:file:bg-white cursor-pointer disabled:opacity-50"
             />
-            
+
             {/* Image Preview Strip */}
             {previewUrls.length > 0 && (
               <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
                 {previewUrls.map((url, idx) => (
-                  <img key={idx} src={url} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded-lg border border-slate-300 flex-shrink-0 shadow-sm" />
+                  <img key={idx} src={url} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded-lg border border-slate-300 dark:border-slate-800 flex-shrink-0 shadow-sm" />
                 ))}
               </div>
             )}
@@ -269,41 +269,41 @@ export default function AdminDashboard() {
 
           {/* Row 4: Description & Submit */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Description</label>
-            <textarea placeholder="Vehicle Description..." value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none min-h-[80px] resize-none"></textarea>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Description</label>
+            <textarea placeholder="Vehicle Description..." value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border border-slate-300 dark:border-slate-800 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 dark:text-slate-50 text-sm focus:ring-2 focus:ring-red-500 outline-none min-h-[80px] resize-none"></textarea>
           </div>
-          
-          {uploadStatus && <p className="text-center font-bold text-slate-600 text-sm animate-pulse">{uploadStatus}</p>}
+
+          {uploadStatus && <p className="text-center font-bold text-slate-600 dark:text-slate-400 text-sm animate-pulse">{uploadStatus}</p>}
           
           <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 text-white font-bold uppercase tracking-wider py-3.5 rounded-lg hover:bg-red-700 transition-colors mt-2 disabled:opacity-50 shadow-md">
             {isSubmitting ? "Processing..." : "Publish Listing"}
           </button>
-          
+
         </form>
       </div>
 
       {/* Data Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-slate-500 font-medium">Loading inventory...</div>
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400 font-medium">Loading inventory...</div>
         ) : listings.length === 0 ? (
-          <div className="p-12 text-center text-slate-500">No vehicles in inventory.</div>
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400">No vehicles in inventory.</div>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+              <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
                 <th className="p-4 font-bold">Vehicle</th>
                 <th className="p-4 font-bold">Type</th>
                 <th className="p-4 font-bold">Price</th>
                 <th className="p-4 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {listings.map((car) => (
-                <tr key={car.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={car.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                   <td className="p-4 flex items-center gap-4">
-                    <div 
-                      className="w-16 h-12 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200 relative group"
+                    <div
+                      className="w-16 h-12 rounded-lg bg-slate-200 dark:bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer border border-slate-200 dark:border-slate-800 relative group"
                       onClick={() => car.image_urls?.length && setZoomedImage(car.image_urls[0])}
                     >
                       {car.image_urls?.length ? (
@@ -316,27 +316,27 @@ export default function AdminDashboard() {
                           )}
                         </>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">No Pic</div>
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-400">No Pic</div>
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">{car.year} {car.make} {car.model}</p>
-                      <p className="text-xs text-slate-400 font-mono mt-0.5">ID: {car.id.split('-')[0]}</p>
+                      <p className="font-bold text-slate-900 dark:text-slate-50">{car.year} {car.make} {car.model}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-400 font-mono mt-0.5">ID: {car.id.split('-')[0]}</p>
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md capitalize">
+                    <span className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold px-2.5 py-1 rounded-md capitalize">
                       {car.vehicle_type || "Car"}
                     </span>
                   </td>
-                  <td className="p-4 font-bold text-green-600">
+                  <td className="p-4 font-bold text-green-600 dark:text-green-400">
                     ${(car.price / 100).toLocaleString()}
                   </td>
                   <td className="p-4 text-right space-x-2">
-                    <button onClick={() => openEditModal(car)} className="text-sm font-bold text-blue-600 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                    <button onClick={() => openEditModal(car)} className="text-sm font-bold text-blue-600 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors">
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(car.id)} className="text-sm font-bold text-red-600 px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                    <button onClick={() => handleDelete(car.id)} className="text-sm font-bold text-red-600 px-3 py-1.5 bg-red-50 dark:bg-red-950 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition-colors">
                       Delete
                     </button>
                   </td>
@@ -350,47 +350,47 @@ export default function AdminDashboard() {
       {/* EDIT MODAL */}
       {editingListing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-slate-900">Edit Listing</h2>
-              <button onClick={() => setEditingListing(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Edit Listing</h2>
+              <button onClick={() => setEditingListing(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold">&times;</button>
             </div>
-            
+
             <form onSubmit={submitEdit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Make</label>
-                  <input type="text" value={editMake} onChange={(e) => setEditMake(e.target.value)} required className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Make</label>
+                  <input type="text" value={editMake} onChange={(e) => setEditMake(e.target.value)} required className="w-full p-2.5 border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Model</label>
-                  <input type="text" value={editModel} onChange={(e) => setEditModel(e.target.value)} required className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Model</label>
+                  <input type="text" value={editModel} onChange={(e) => setEditModel(e.target.value)} required className="w-full p-2.5 border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Year</label>
-                  <input type="number" value={editYear} onChange={(e) => setEditYear(e.target.value)} required className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Year</label>
+                  <input type="number" value={editYear} onChange={(e) => setEditYear(e.target.value)} required className="w-full p-2.5 border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Price (USD)</label>
-                  <input type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} required className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Price (USD)</label>
+                  <input type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} required className="w-full p-2.5 border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Vehicle Type</label>
-                <select value={editVehicleType} onChange={(e) => setEditVehicleType(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Vehicle Type</label>
+                <select value={editVehicleType} onChange={(e) => setEditVehicleType(e.target.value)} className="w-full p-2.5 border border-slate-300 dark:border-slate-800 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 dark:text-slate-50">
                   <option value="car">Car</option>
                   <option value="motorcycle">Motorcycle</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Description</label>
-                <textarea rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Description</label>
+                <textarea rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} className="w-full p-2.5 border border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-50 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
               </div>
 
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setEditingListing(null)} className="flex-1 py-3 font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
+                <button type="button" onClick={() => setEditingListing(null)} className="flex-1 py-3 font-bold text-slate-600 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
                 <button type="submit" disabled={isSaving} className="flex-1 py-3 font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>

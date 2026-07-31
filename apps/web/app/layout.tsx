@@ -1,5 +1,6 @@
 import "./globals.css";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export const metadata = {
   title: "NR MotorMarket",
@@ -12,33 +13,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-slate-50 font-sans">
-        
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-slate-50 dark:bg-slate-950 font-sans">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+
         {/* --- GLOBAL DEALERSHIP HEADER (SHOWS ON EVERY PAGE) --- */}
         {/* 1. Added frosted glass see-through effect here */}
-        <header className="w-full bg-white/85 backdrop-blur-md sticky top-0 z-50 shadow-sm flex flex-col border-b border-gray-200/50">
-          
+        <header className="w-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-md sticky top-0 z-50 shadow-sm flex flex-col border-b border-gray-200/50 dark:border-slate-800/50">
+
           {/* TOP ROW: Branding & Contact (Thinner padding) */}
           <div className="max-w-7xl mx-auto w-full px-4 md:px-8 py-2.5 flex justify-between items-center">
-            
+
             {/* Logo Section */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-3">
-                
+
                 {/* 2. Shrunk container slightly to w-16 h-16 to keep header thin, kept your zoom scale */}
                 <div className="w-16 h-16 flex items-center justify-center overflow-visible">
-                  <img 
-                    src="/logo.png" 
-                    alt="NR MotorMarket Logo" 
+                  <img
+                    src="/logo.png"
+                    alt="NR MotorMarket Logo"
                     className="w-full h-full object-contain scale-125"
                   />
                 </div>
-                
+
                 {/* 3. Modern, sleek font style */}
                 <div className="flex flex-col leading-none mt-1">
-                  <h1 className="text-2xl font-extrabold tracking-tighter text-slate-900">
-                    NR <span className="font-light text-slate-500">MotorMarket</span>
+                  <h1 className="text-2xl font-extrabold tracking-tighter text-slate-900 dark:text-slate-50">
+                    NR <span className="font-light text-slate-500 dark:text-slate-400">MotorMarket</span>
                   </h1>
                   <span className="text-[10px] text-red-600 font-bold uppercase tracking-widest mt-1 hidden sm:block">
                     Find your perfect ride.
@@ -48,13 +54,16 @@ export default function RootLayout({
             </div>
 
             {/* Contact Info (Preserved your local info!) */}
-            <div className="flex flex-col items-end justify-center">
-              <a href="tel:8881234567" className="text-xl md:text-2xl font-black text-gray-900 hover:text-red-600 transition-colors leading-none">
-                (888) 123-4567
-              </a>
-              <span className="text-xs text-gray-500 font-medium hidden sm:block mt-1">
-                📍 Phnom Penh, Cambodia
-              </span>
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <div className="flex flex-col items-end justify-center">
+                <a href="tel:8881234567" className="text-xl md:text-2xl font-black text-gray-900 dark:text-slate-100 hover:text-red-600 transition-colors leading-none">
+                  (888) 123-4567
+                </a>
+                <span className="text-xs text-gray-500 dark:text-slate-400 font-medium hidden sm:block mt-1">
+                  📍 Phnom Penh, Cambodia
+                </span>
+              </div>
             </div>
           </div>
 

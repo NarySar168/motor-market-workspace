@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList, SafeAreaView, Dimensions, Modal, ImageBackground, Animated, Easing } from 'react-native';
 import { LISTINGS_URL } from '../../constants/api';
+import { useTheme } from '../../context/ThemeContext';
+import { ThemeColors } from '../../constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(300, SCREEN_WIDTH * 0.78);
 const RUST_API_URL = LISTINGS_URL;
 
 export default function FeedScreen() {
+  const { colors, isDark, toggle } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [feed, setFeed] = useState<any[]>([]);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null); 
@@ -77,6 +81,7 @@ export default function FeedScreen() {
     { label: 'Financing', icon: '💳', onPress: () => alert('Navigate to Financing') },
     { label: 'About Us', icon: 'ℹ️', onPress: () => alert('Navigate to About Us') },
     { label: 'Admin Access', icon: '⚙️', onPress: () => alert('Navigate to Admin screen') },
+    { label: 'Dark Mode', icon: isDark ? '☀️' : '🌙', onPress: () => toggle() },
   ];
 
   const renderFeedItem = ({ item }: { item: any }) => (
@@ -97,7 +102,7 @@ export default function FeedScreen() {
       </View>
       
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.year} {item.make} <Text style={{fontWeight: '400', color: '#64748b'}}>{item.model}</Text></Text>
+        <Text style={styles.cardTitle}>{item.year} {item.make} <Text style={{fontWeight: '400', color: colors.muted}}>{item.model}</Text></Text>
         <Text style={styles.cardPrice}>${(item.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
         
         {/* Updated Web-Style Action Buttons */}
@@ -131,13 +136,13 @@ export default function FeedScreen() {
             resizeMode="contain"
           />
           <View style={styles.headerTextContainer}>
-            <Text style={styles.brandTitle}>
+            <Text style={styles.brandTitle} numberOfLines={1} adjustsFontSizeToFit>
               NR <Text style={styles.brandLight}>MotorMarket</Text>
             </Text>
             <Text style={styles.brandSubtitle}>Find your perfect ride.</Text>
           </View>
-          <TouchableOpacity 
-            style={styles.menuButton} 
+          <TouchableOpacity
+            style={styles.menuButton}
             onPress={openMenu}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -207,7 +212,7 @@ export default function FeedScreen() {
                 >
                   <View style={styles.heroOverlay}>
                     <Text style={styles.heroTitle}>
-                      Drive Your <Text style={{ color: '#ef4444' }}>Dream</Text>
+                      Drive Your <Text style={{ color: colors.primary }}>Dream</Text>
                     </Text>
                   </View>
                 </ImageBackground>
@@ -215,9 +220,9 @@ export default function FeedScreen() {
                 {/* SEARCH & FILTERS */}
                 <View style={styles.filterContainer}>
                   <TextInput 
-                    style={styles.searchInput} 
-                    placeholder="Search Make or Model..." 
-                    placeholderTextColor="#94a3b8"
+                    style={styles.searchInput}
+                    placeholder="Search Make or Model..."
+                    placeholderTextColor={colors.muted}
                     value={searchQuery} 
                     onChangeText={setSearchQuery}
                   />
@@ -234,9 +239,9 @@ export default function FeedScreen() {
                       </TouchableOpacity>
                     </ScrollView>
                     <TextInput 
-                      style={styles.priceInput} 
-                      placeholder="Max $" 
-                      placeholderTextColor="#94a3b8"
+                      style={styles.priceInput}
+                      placeholder="Max $"
+                      placeholderTextColor={colors.muted}
                       keyboardType="numeric" 
                       value={maxPrice} 
                       onChangeText={setMaxPrice}
@@ -249,9 +254,9 @@ export default function FeedScreen() {
             ListEmptyComponent={
               !isLoadingFeed ? (
                 <View style={{ marginTop: 40, alignItems: 'center' }}>
-                  <Text style={{ color: '#64748b', fontSize: 16, fontWeight: 'bold' }}>No vehicles match your filters.</Text>
+                  <Text style={{ color: colors.muted, fontSize: 16, fontWeight: 'bold' }}>No vehicles match your filters.</Text>
                   <TouchableOpacity onPress={() => { setSearchQuery(""); setTypeFilter("All"); setMaxPrice(""); }} style={{ marginTop: 15 }}>
-                    <Text style={{ color: '#dc2626', fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>Clear Filters</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>Clear Filters</Text>
                   </TouchableOpacity>
                 </View>
               ) : null
@@ -288,7 +293,7 @@ export default function FeedScreen() {
                     onPress={() => { closeMenu(); item.onPress(); }}
                   >
                     <Text style={styles.drawerItemIcon}>{item.icon}</Text>
-                    <Text style={[styles.drawerItemText, item.label === 'Admin Access' && { color: '#dc2626' }]}>{item.label}</Text>
+                    <Text style={[styles.drawerItemText, item.label === 'Admin Access' && { color: colors.primary }]}>{item.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -324,23 +329,23 @@ export default function FeedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f8fafc' },
+const createStyles = (c: ThemeColors) => StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: c.bg },
   container: { flex: 1, paddingHorizontal: 16 },
-  
+
   // --- PREMIUM HEADER ---
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: c.border,
     zIndex: 10,
   },
-  logo: { 
-    height: 84,  
+  logo: {
+    height: 84,
     width: 90,
     marginRight: 12,
   },
@@ -348,19 +353,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  brandTitle: { 
-    fontSize: 28, 
-    fontWeight: '900', 
-    color: '#0f172a', 
+  brandTitle: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: c.text,
     letterSpacing: -0.5,
   },
   brandLight: {
     fontWeight: '300',
-    color: '#64748b',
+    color: c.muted,
   },
   brandSubtitle: {
     fontSize: 12,
-    color: '#dc2626',
+    color: c.primary,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -370,7 +375,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#eff6ff',
+    backgroundColor: c.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
@@ -380,25 +385,25 @@ const styles = StyleSheet.create({
     width: 20,
     height: 2.5,
     borderRadius: 2,
-    backgroundColor: '#2563eb',
+    backgroundColor: c.accent,
   },
 
   // --- SLIDE-OUT MENU ---
   drawerRoot: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end' },
-  drawerBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(15, 23, 42, 0.5)' },
-  drawerPanel: { height: '100%', backgroundColor: '#ffffff', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 16 },
-  drawerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  drawerBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: c.overlay },
+  drawerPanel: { height: '100%', backgroundColor: c.surface, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 16 },
+  drawerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: c.border },
   drawerLogo: { width: 48, height: 48 },
-  drawerClose: { fontSize: 20, color: '#64748b', fontWeight: '600' },
+  drawerClose: { fontSize: 20, color: c.muted, fontWeight: '600' },
   drawerItems: { paddingTop: 8 },
-  drawerItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f8fafc' },
+  drawerItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: c.surfaceAlt },
   drawerItemIcon: { fontSize: 20, marginRight: 16, width: 24, textAlign: 'center' },
-  drawerItemText: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  
+  drawerItemText: { fontSize: 16, fontWeight: '700', color: c.text },
+
   // Drawer Footer
-  drawerFooter: { padding: 20, borderTopWidth: 1, borderTopColor: '#f1f5f9', alignItems: 'center', marginBottom: 20 },
-  drawerContactPhone: { fontSize: 20, fontWeight: '900', color: '#0f172a', marginBottom: 4 },
-  drawerContactLocation: { fontSize: 12, color: '#64748b', fontWeight: '600' },
+  drawerFooter: { padding: 20, borderTopWidth: 1, borderTopColor: c.border, alignItems: 'center', marginBottom: 20 },
+  drawerContactPhone: { fontSize: 20, fontWeight: '900', color: c.text, marginBottom: 4 },
+  drawerContactLocation: { fontSize: 12, color: c.muted, fontWeight: '600' },
 
   // --- HERO BANNER ---
   heroBanner: {
@@ -411,7 +416,7 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: c.overlay,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -427,49 +432,49 @@ const styles = StyleSheet.create({
 
   // --- SEARCH & FILTERS (RED THEME) ---
   filterContainer: { marginBottom: 20 },
-  searchInput: { backgroundColor: '#fff', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', marginBottom: 12, fontSize: 16, fontWeight: '500' },
+  searchInput: { backgroundColor: c.surface, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: c.border, marginBottom: 12, fontSize: 16, fontWeight: '500', color: c.text },
   filterRow: { flexDirection: 'row', alignItems: 'center' },
   typePills: { flex: 1, marginRight: 10 },
-  pill: { paddingHorizontal: 18, paddingVertical: 10, backgroundColor: '#fff', borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#e2e8f0' },
-  pillActive: { backgroundColor: '#fef2f2', borderColor: '#fca5a5' },
-  pillText: { color: '#64748b', fontWeight: '700', fontSize: 14 },
-  pillTextActive: { color: '#dc2626' }, 
-  priceInput: { width: 90, backgroundColor: '#fff', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', fontSize: 14, textAlign: 'center', fontWeight: '600' },
-  
+  pill: { paddingHorizontal: 18, paddingVertical: 10, backgroundColor: c.surface, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: c.border },
+  pillActive: { backgroundColor: c.surfaceAlt, borderColor: c.primary },
+  pillText: { color: c.muted, fontWeight: '700', fontSize: 14 },
+  pillTextActive: { color: c.primary },
+  priceInput: { width: 90, backgroundColor: c.surface, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, fontSize: 14, textAlign: 'center', fontWeight: '600', color: c.text },
+
   // --- VEHICLE CARDS ---
-  card: { backgroundColor: '#fff', borderRadius: 16, marginBottom: 24, overflow: 'hidden', borderWidth: 1, borderColor: '#f1f5f9', shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 3 },
-  cardImage: { width: '100%', height: 220, backgroundColor: '#f8fafc' },
+  card: { backgroundColor: c.surface, borderRadius: 16, marginBottom: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 3 },
+  cardImage: { width: '100%', height: 220, backgroundColor: c.bg },
   placeholderImage: { alignItems: 'center', justifyContent: 'center' },
-  placeholderText: { color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
-  typeBadge: { position: 'absolute', top: 12, right: 12, backgroundColor: '#dc2626', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
-  typeBadgeText: { color: '#fff', fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 },
-  
+  placeholderText: { color: c.muted, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
+  typeBadge: { position: 'absolute', top: 12, right: 12, backgroundColor: c.primary, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  typeBadgeText: { color: c.onPrimary, fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 },
+
   cardContent: { padding: 16 },
-  cardTitle: { fontSize: 20, fontWeight: '900', color: '#0f172a', marginBottom: 4, textTransform: 'uppercase' },
-  cardPrice: { fontSize: 26, fontWeight: '900', color: '#dc2626', marginBottom: 16 },
-  
+  cardTitle: { fontSize: 20, fontWeight: '900', color: c.text, marginBottom: 4, textTransform: 'uppercase' },
+  cardPrice: { fontSize: 26, fontWeight: '900', color: c.primary, marginBottom: 16 },
+
   // Action Buttons
-  actionRow: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 16 },
-  detailsBtn: { flex: 1, backgroundColor: '#f1f5f9', paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
-  detailsBtnText: { color: '#334155', fontWeight: '800', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
-  contactBtn: { flex: 1, backgroundColor: '#111827', paddingVertical: 12, borderRadius: 10, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
-  contactBtnText: { color: '#ffffff', fontWeight: '800', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
+  actionRow: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: c.border, paddingTop: 16 },
+  detailsBtn: { flex: 1, backgroundColor: c.surfaceAlt, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
+  detailsBtnText: { color: c.text, fontWeight: '800', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
+  contactBtn: { flex: 1, backgroundColor: c.contactBg, paddingVertical: 12, borderRadius: 10, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
+  contactBtnText: { color: c.onContact, fontWeight: '800', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
 
   // --- DETAILS VIEW ---
   backButton: { paddingVertical: 12, marginBottom: 5 },
-  backButtonText: { color: '#dc2626', fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
-  detailImageContainer: { borderRadius: 16, overflow: 'hidden', marginBottom: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#f1f5f9' },
+  backButtonText: { color: c.primary, fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
+  detailImageContainer: { borderRadius: 16, overflow: 'hidden', marginBottom: 20, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
   detailImage: { width: SCREEN_WIDTH - 32, height: 300, resizeMode: 'cover' },
-  detailContent: { backgroundColor: '#fff', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#f1f5f9' },
-  detailTitle: { fontSize: 26, fontWeight: '900', color: '#0f172a', marginBottom: 8, textTransform: 'uppercase', letterSpacing: -0.5 },
-  detailPrice: { fontSize: 36, fontWeight: '900', color: '#dc2626', marginBottom: 12 },
-  detailType: { color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
-  divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 20 },
-  detailSectionTitle: { fontSize: 12, fontWeight: '900', color: '#94a3b8', textTransform: 'uppercase', marginBottom: 10, letterSpacing: 1 },
-  detailDescription: { fontSize: 16, color: '#334155', lineHeight: 26, fontWeight: '500' },
-  detailSellerEmail: { fontSize: 16, color: '#111827', fontWeight: '800' },
-  
-  // --- MODAL ---
+  detailContent: { backgroundColor: c.surface, padding: 24, borderRadius: 16, borderWidth: 1, borderColor: c.border },
+  detailTitle: { fontSize: 26, fontWeight: '900', color: c.text, marginBottom: 8, textTransform: 'uppercase', letterSpacing: -0.5 },
+  detailPrice: { fontSize: 36, fontWeight: '900', color: c.primary, marginBottom: 12 },
+  detailType: { color: c.muted, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
+  divider: { height: 1, backgroundColor: c.border, marginVertical: 20 },
+  detailSectionTitle: { fontSize: 12, fontWeight: '900', color: c.muted, textTransform: 'uppercase', marginBottom: 10, letterSpacing: 1 },
+  detailDescription: { fontSize: 16, color: c.text, lineHeight: 26, fontWeight: '500' },
+  detailSellerEmail: { fontSize: 16, color: c.text, fontWeight: '800' },
+
+  // --- MODAL (media viewer stays black regardless of theme) ---
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.98)', justifyContent: 'center' },
   modalCloseButton: { position: 'absolute', top: 60, right: 20, zIndex: 10, padding: 12, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12 },
   modalCloseText: { color: '#fff', fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },

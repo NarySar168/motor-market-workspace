@@ -55,10 +55,10 @@ export default function Storefront() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
+      <div className="min-h-[70vh] flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-          <p className="text-slate-500 font-medium">Loading inventory...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading inventory...</p>
         </div>
       </div>
     );
@@ -86,21 +86,21 @@ export default function Storefront() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
         
         {/* Filter Bar */}
-        <div className="bg-white p-6 rounded-xl mb-12 flex flex-col md:flex-row gap-4 border border-gray-200 shadow-xl relative z-20 -mt-12">
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl mb-12 flex flex-col md:flex-row gap-4 border border-gray-200 dark:border-slate-800 shadow-xl relative z-20 -mt-12">
           <div className="flex-1">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Search Vehicles</label>
+            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Search Vehicles</label>
             <input
               type="text"
               placeholder="Make, model, or year..."
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded focus:ring-2 focus:ring-red-500 focus:bg-white outline-none transition-all font-medium"
+              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="w-full md:w-56">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Category</label>
+            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Category</label>
             <select
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded focus:ring-2 focus:ring-red-500 focus:bg-white outline-none transition-all font-medium"
+              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
             >
@@ -110,11 +110,11 @@ export default function Storefront() {
             </select>
           </div>
           <div className="w-full md:w-56">
-            <label className="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Max Price</label>
+            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Max Price</label>
             <input
               type="number"
               placeholder="$ Any"
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded focus:ring-2 focus:ring-red-500 focus:bg-white outline-none transition-all font-medium"
+              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
             />
@@ -123,12 +123,12 @@ export default function Storefront() {
 
         {/* Vehicle Grid */}
         {filteredListings.length === 0 ? (
-          <div className="text-center py-24 bg-white rounded-xl border-2 border-dashed border-gray-200">
-            <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">No vehicles found</h3>
-            <p className="text-gray-500 mb-6 font-medium">We couldn't find any matches for your current filters.</p>
-            <button 
+          <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-800">
+            <h3 className="text-2xl font-black text-gray-900 dark:text-slate-50 mb-2 uppercase tracking-tight">No vehicles found</h3>
+            <p className="text-gray-500 dark:text-slate-400 mb-6 font-medium">We couldn't find any matches for your current filters.</p>
+            <button
               onClick={() => { setSearchQuery(""); setTypeFilter("All"); setMaxPrice(""); }}
-              className="text-red-600 font-black hover:text-red-700 bg-red-50 px-8 py-4 rounded uppercase tracking-widest transition-colors"
+              className="text-red-600 font-black hover:text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-400 px-8 py-4 rounded uppercase tracking-widest transition-colors"
             >
               Clear Filters
             </button>
@@ -136,13 +136,13 @@ export default function Storefront() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredListings.map((vehicle) => (
-              <div key={vehicle.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col group">
+              <div key={vehicle.id} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col group">
                 {/* Image */}
-                <div className="h-56 bg-gray-100 relative overflow-hidden">
+                <div className="h-56 bg-gray-100 dark:bg-slate-800 relative overflow-hidden">
                   {vehicle.image_urls && vehicle.image_urls.length > 0 ? (
                     <img src={vehicle.image_urls[0]} alt={`${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest">No Photo</div>
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-slate-400 font-bold uppercase tracking-widest">No Photo</div>
                   )}
                   {vehicle.vehicle_type && (
                     <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] px-3 py-1.5 rounded font-black shadow-lg tracking-widest uppercase">{vehicle.vehicle_type}</span>
@@ -151,19 +151,19 @@ export default function Storefront() {
 
                 {/* Details */}
                 <div className="p-6 flex flex-col flex-grow">
-                  <h2 className="text-xl font-black text-gray-900 leading-tight mb-1 uppercase">
-                    {vehicle.year} {vehicle.make} 
-                    <span className="block text-gray-500 text-lg mt-1">{vehicle.model}</span>
+                  <h2 className="text-xl font-black text-gray-900 dark:text-slate-50 leading-tight mb-1 uppercase">
+                    {vehicle.year} {vehicle.make}
+                    <span className="block text-gray-500 dark:text-slate-400 text-lg mt-1">{vehicle.model}</span>
                   </h2>
                   <div className="text-3xl font-black text-red-600 my-4">
                     ${(vehicle.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </div>
                   {vehicle.description && (
-                    <p className="text-gray-500 mb-6 line-clamp-2 text-sm font-medium leading-relaxed">{vehicle.description}</p>
+                    <p className="text-gray-500 dark:text-slate-400 mb-6 line-clamp-2 text-sm font-medium leading-relaxed">{vehicle.description}</p>
                   )}
-                  <div className="mt-auto pt-4 border-t border-gray-100 flex gap-3">
-                    <Link href={`/listing/${vehicle.id}`} className="flex-1 bg-gray-100 text-gray-800 text-center px-4 py-3.5 rounded font-black hover:bg-gray-200 transition-colors uppercase tracking-wider text-sm">Details</Link>
-                    <a href={`mailto:${vehicle.seller_email}`} className="flex-1 bg-gray-900 text-white text-center px-4 py-3.5 rounded font-black hover:bg-gray-800 transition-colors shadow-md uppercase tracking-wider text-sm">Contact</a>
+                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-800 flex gap-3">
+                    <Link href={`/listing/${vehicle.id}`} className="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 text-center px-4 py-3.5 rounded font-black hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors uppercase tracking-wider text-sm">Details</Link>
+                    <a href={`mailto:${vehicle.seller_email}`} className="flex-1 bg-gray-900 dark:bg-slate-100 text-white dark:text-slate-900 text-center px-4 py-3.5 rounded font-black hover:bg-gray-800 dark:hover:bg-white transition-colors shadow-md uppercase tracking-wider text-sm">Contact</a>
                   </div>
                 </div>
               </div>
