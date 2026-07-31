@@ -1,6 +1,6 @@
 # motor-market-workspace
 
-Cross-platform monorepo for the Motor Market application. Houses all shared frontend components, the Next.js web application, the React Native mobile application, and the high-performance Rust backend API.
+Cross-platform monorepo for **NR MotorMarket** — a premium auto & motorcycle dealership storefront. Houses all shared frontend components, the Next.js web application, the React Native mobile application, and the high-performance Rust backend API. The web and mobile clients are kept at feature and design parity, including a shared light/dark theme palette.
 
 ## Architecture
 
@@ -41,6 +41,23 @@ GET  /api/listings/:id# Fetches a single vehicle's details and image gallery
 POST /api/listings    # Posts vehicle (Requires: user_id, make, model, year, price)
 
 ```
+
+## Frontend Experience & Shared Config
+
+Both clients are built to stay in lockstep — any UI or behavior change is applied to `apps/web` and `apps/mobile` together.
+
+**Light / Dark Theme**
+Both apps ship a light/dark mode that defaults to the operating system preference and remembers a manual override.
+
+* **Web** uses a Tailwind v4 `dark` class variant with a no-flash inline script; the choice persists in `localStorage`. Toggle lives in the site header (`apps/web/components/ThemeToggle.tsx`).
+* **Mobile** uses a `ThemeContext` (`apps/mobile/context/ThemeContext.tsx`) that reads the system scheme and persists an override via `AsyncStorage`; the toggle lives in the hamburger drawer. Native chrome follows via `app.json` → `"userInterfaceStyle": "automatic"`.
+* Both consume the **same color-token palette** (`apps/mobile/constants/theme.ts` mirrors the web Tailwind values) so the platforms match exactly.
+
+**Centralized API URL**
+The backend base URL is defined in a single place per app rather than hardcoded in each screen — change it once (or override with an env var):
+
+* Web: `apps/web/lib/api.ts` → reads `NEXT_PUBLIC_API_URL` (falls back to `http://localhost:8080`).
+* Mobile: `apps/mobile/constants/api.ts` → reads `EXPO_PUBLIC_API_URL` (falls back to the dev machine's LAN IP). A physical device cannot reach `localhost`, so this must be the host machine's LAN IP.
 
 ## Product Architecture Strategy
 
@@ -83,6 +100,17 @@ Create a `.env.local` file in the root of the `apps/web` directory:
 ```env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=motor_market_cars
+
+# Optional — defaults to http://localhost:8080 if unset
+NEXT_PUBLIC_API_URL=http://localhost:8080
+
+```
+
+Optionally create a `.env.local` file in the root of the `apps/mobile` directory. Set this to your dev machine's LAN IP so a physical device (or the iOS simulator) can reach the API — `localhost` points at the device itself:
+
+```env
+# e.g. your machine's LAN IP; defaults to the value in apps/mobile/constants/api.ts
+EXPO_PUBLIC_API_URL=http://192.168.0.34:8080
 
 ```
 
