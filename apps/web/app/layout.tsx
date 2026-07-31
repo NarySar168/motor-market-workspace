@@ -1,6 +1,7 @@
 import "./globals.css";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "NR MotorMarket",
@@ -99,6 +100,8 @@ export default function RootLayout({
 
         {/* THIS IS WHERE YOUR PAGES RENDER */}
         {children}
+
+        <Footer />
 
       </body>
     </html>

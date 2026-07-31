@@ -1,3 +1,13 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 @source "../../../packages/ui/src";
+
+/* Hero carousel progress-dot fill animation (see components/HeroCarousel.tsx) */
+@keyframes fillbar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

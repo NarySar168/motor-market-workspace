@@ -1,27 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { LISTINGS_URL } from "@/lib/api";
+import type { Vehicle } from "@/lib/types";
+import HeroCarousel from "@/components/HeroCarousel";
+import TrustStrip from "@/components/TrustStrip";
+import ValueProps from "@/components/ValueProps";
+import InventoryCard from "@/components/InventoryCard";
+import FinancingBand from "@/components/FinancingBand";
+import TradeIn from "@/components/TradeIn";
+import BrandStrip from "@/components/BrandStrip";
 
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  price: number; 
-  description?: string;
-  vehicle_type?: string;
-  seller_email: string;
-  image_urls: string[];
-}
+const CATEGORY_FILTERS = ["All", "Car", "Motorcycle"] as const;
 
 export default function Storefront() {
   const [listings, setListings] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [maxPrice, setMaxPrice] = useState("");
 
   useEffect(() => {
@@ -43,10 +40,10 @@ export default function Storefront() {
   const filteredListings = listings.filter((vehicle) => {
     const searchString = `${vehicle.year} ${vehicle.make} ${vehicle.model}`.toLowerCase();
     const matchesSearch = searchString.includes(searchQuery.toLowerCase());
-    
-    const matchesType = typeFilter === "All" || 
-      (vehicle.vehicle_type && vehicle.vehicle_type.toLowerCase() === typeFilter.toLowerCase());
-      
+
+    const matchesType =
+      typeFilter === "All" || (vehicle.vehicle_type && vehicle.vehicle_type.toLowerCase() === typeFilter.toLowerCase());
+
     const vehiclePriceDollars = vehicle.price / 100;
     const matchesPrice = maxPrice === "" || vehiclePriceDollars <= parseFloat(maxPrice);
 
@@ -55,122 +52,114 @@ export default function Storefront() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-[70vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Loading inventory...</p>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-red-200 border-t-red-600"></div>
+          <p className="font-medium text-slate-500 dark:text-slate-400">Loading inventory...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      {/* --- BIG HERO SECTION --- */}
-      <div className="relative w-full h-[50vh] min-h-[400px] bg-gray-900 flex flex-col items-center justify-center">
-        <div 
-          className="absolute inset-0 opacity-40 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1562426509-5044a121aa49?q=80&w=2070&auto=format&fit=crop')" }}
-        />
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto transform -translate-y-4">
-          <h2 className="text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter drop-shadow-xl">
-            Drive Your <span className="text-red-500">Dream</span>
-          </h2>
-          <p className="text-lg md:text-2xl text-gray-200 font-medium drop-shadow-md">
-            Unbeatable prices on premium pre-owned vehicles.
-          </p>
-        </div>
-      </div>
+    <div className="w-full bg-slate-50 dark:bg-slate-950">
+      {/* Hero carousel — built from the first 3 real listings */}
+      <HeroCarousel vehicles={listings} />
 
-      {/* --- MAIN INVENTORY SECTION --- */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
-        
-        {/* Filter Bar */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl mb-12 flex flex-col md:flex-row gap-4 border border-gray-200 dark:border-slate-800 shadow-xl relative z-20 -mt-12">
-          <div className="flex-1">
-            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Search Vehicles</label>
+      {/* Trust promise strip */}
+      <TrustStrip />
+
+      {/* Value props */}
+      <ValueProps />
+
+      {/* Inventory */}
+      <section id="inventory" className="py-4">
+        <div className="mx-auto max-w-7xl px-4 md:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-red-600 dark:text-red-500">
+                <span className="h-[2px] w-[22px] bg-red-600 dark:bg-red-500" />
+                Latest Arrivals
+              </span>
+              <h2 className="mt-2 text-[clamp(1.6rem,3.4vw,2.4rem)] font-black uppercase leading-tight tracking-tight text-slate-900 dark:text-slate-50">
+                Featured inventory
+              </h2>
+            </div>
+          </div>
+
+          {/* Search + price controls */}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <input
               type="text"
-              placeholder="Make, model, or year..."
-              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
+              placeholder="Search make, model, or year..."
+              className="flex-1 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500/30 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
-          <div className="w-full md:w-56">
-            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Category</label>
-            <select
-              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
-              <option value="All">All Inventory</option>
-              <option value="Car">Cars</option>
-              <option value="Motorcycle">Motorcycles</option>
-            </select>
-          </div>
-          <div className="w-full md:w-56">
-            <label className="block text-xs font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Max Price</label>
             <input
               type="number"
-              placeholder="$ Any"
-              className="w-full p-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 outline-none transition-all font-medium dark:text-slate-50"
+              placeholder="Max price ($)"
+              className="w-full rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500/30 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 sm:w-44"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
             />
           </div>
-        </div>
 
-        {/* Vehicle Grid */}
-        {filteredListings.length === 0 ? (
-          <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-slate-800">
-            <h3 className="text-2xl font-black text-gray-900 dark:text-slate-50 mb-2 uppercase tracking-tight">No vehicles found</h3>
-            <p className="text-gray-500 dark:text-slate-400 mb-6 font-medium">We couldn't find any matches for your current filters.</p>
-            <button
-              onClick={() => { setSearchQuery(""); setTypeFilter("All"); setMaxPrice(""); }}
-              className="text-red-600 font-black hover:text-red-700 bg-red-50 dark:bg-red-950 dark:text-red-400 px-8 py-4 rounded uppercase tracking-widest transition-colors"
-            >
-              Clear Filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredListings.map((vehicle) => (
-              <div key={vehicle.id} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col group">
-                {/* Image */}
-                <div className="h-56 bg-gray-100 dark:bg-slate-800 relative overflow-hidden">
-                  {vehicle.image_urls && vehicle.image_urls.length > 0 ? (
-                    <img src={vehicle.image_urls[0]} alt={`${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-slate-400 font-bold uppercase tracking-widest">No Photo</div>
-                  )}
-                  {vehicle.vehicle_type && (
-                    <span className="absolute top-4 right-4 bg-red-600 text-white text-[10px] px-3 py-1.5 rounded font-black shadow-lg tracking-widest uppercase">{vehicle.vehicle_type}</span>
-                  )}
-                </div>
-
-                {/* Details */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h2 className="text-xl font-black text-gray-900 dark:text-slate-50 leading-tight mb-1 uppercase">
-                    {vehicle.year} {vehicle.make}
-                    <span className="block text-gray-500 dark:text-slate-400 text-lg mt-1">{vehicle.model}</span>
-                  </h2>
-                  <div className="text-3xl font-black text-red-600 my-4">
-                    ${(vehicle.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                  </div>
-                  {vehicle.description && (
-                    <p className="text-gray-500 dark:text-slate-400 mb-6 line-clamp-2 text-sm font-medium leading-relaxed">{vehicle.description}</p>
-                  )}
-                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-800 flex gap-3">
-                    <Link href={`/listing/${vehicle.id}`} className="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-200 text-center px-4 py-3.5 rounded font-black hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors uppercase tracking-wider text-sm">Details</Link>
-                    <a href={`mailto:${vehicle.seller_email}`} className="flex-1 bg-gray-900 dark:bg-slate-100 text-white dark:text-slate-900 text-center px-4 py-3.5 rounded font-black hover:bg-gray-800 dark:hover:bg-white transition-colors shadow-md uppercase tracking-wider text-sm">Contact</a>
-                  </div>
-                </div>
-              </div>
+          {/* Category filter pills */}
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {CATEGORY_FILTERS.map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setTypeFilter(filter)}
+                className={`rounded-full border px-4.5 py-2 text-[0.74rem] font-extrabold uppercase tracking-wider transition-colors ${
+                  typeFilter === filter
+                    ? "border-red-600 bg-red-600 text-white"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-red-500 hover:text-red-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-red-500"
+                }`}
+              >
+                {filter === "All" ? "All" : `${filter}s`}
+              </button>
             ))}
           </div>
-        )}
-      </main>
+
+          {/* Vehicle grid */}
+          {filteredListings.length === 0 ? (
+            <div className="mt-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-24 text-center dark:border-slate-800 dark:bg-slate-900">
+              <h3 className="mb-2 text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50">
+                No vehicles found
+              </h3>
+              <p className="mb-6 font-medium text-slate-500 dark:text-slate-400">
+                We couldn&apos;t find any matches for your current filters.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setTypeFilter("All");
+                  setMaxPrice("");
+                }}
+                className="rounded-full bg-red-50 px-8 py-4 font-black uppercase tracking-widest text-red-600 transition-colors hover:text-red-700 dark:bg-red-950 dark:text-red-400"
+              >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredListings.map((vehicle) => (
+                <InventoryCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Financing band */}
+      <FinancingBand />
+
+      {/* Trade-in */}
+      <TradeIn />
+
+      {/* Brand strip */}
+      <BrandStrip />
     </div>
   );
 }

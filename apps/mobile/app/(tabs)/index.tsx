@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList, SafeAreaView, Dimensions, Modal, ImageBackground, Animated, Easing } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, FlatList, SafeAreaView, Dimensions, Modal, Animated, Easing } from 'react-native';
 import { LISTINGS_URL } from '../../constants/api';
 import { useTheme } from '../../context/ThemeContext';
 import { ThemeColors } from '../../constants/theme';
@@ -8,13 +8,149 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(300, SCREEN_WIDTH * 0.78);
 const RUST_API_URL = LISTINGS_URL;
 
+// Homepage concept content — kept generic/honest, no fabricated APR numbers,
+// star ratings, or "X sold" style claims. See scratchpad/homepage.html source.
+const TRUST_ITEMS = [
+  'Every Vehicle Inspected',
+  'Financing · All Credit',
+  '24-Hour Cash Offers',
+  'Transparent Pricing',
+  'Locally Owned · Phnom Penh',
+];
+
+const VALUE_PROPS = [
+  {
+    icon: '🔍',
+    title: 'Search Inventory',
+    body: 'Every vehicle is inspected for reliability before it hits the lot. Browse cars and motorcycles you can trust.',
+  },
+  {
+    icon: '🏬',
+    title: 'Visit the Showroom',
+    body: 'No pressure, no gimmicks. Come see every vehicle in person at our Phnom Penh showroom and take it for a spin.',
+  },
+  {
+    icon: '🔑',
+    title: 'Book a Test Drive',
+    body: 'The best way to decide is to feel it. Reserve a test drive online in under a minute.',
+  },
+];
+
+const FINANCE_POINTS = ['All credit welcome', 'Soft-check, no score impact', 'Quick decision'];
+
+const BRANDS = ['Toyota', 'Honda', 'BMW', 'Lexus', 'Ford', 'Audi', 'Hyundai'];
+
+function Eyebrow({ children, styles }: { children: React.ReactNode; styles: any }) {
+  return (
+    <View style={styles.eyebrowRow}>
+      <View style={styles.eyebrowLine} />
+      <Text style={styles.eyebrowText}>{children}</Text>
+    </View>
+  );
+}
+
+// Auto-rotating hero built from the first 3 real listings. Always renders on a
+// dark scrim (matches the approved concept) regardless of light/dark theme.
+function HeroCarousel({
+  listings,
+  colors,
+  styles,
+  onSelect,
+}: {
+  listings: any[];
+  colors: ThemeColors;
+  styles: any;
+  onSelect: (item: any) => void;
+}) {
+  const slides = (Array.isArray(listings) ? listings : []).slice(0, 3);
+  const [index, setIndex] = useState(0);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (index >= slides.length) {
+      setIndex(0);
+    }
+  }, [slides.length, index]);
+
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const timer = setInterval(() => {
+      Animated.timing(fadeAnim, { toValue: 0, duration: 250, useNativeDriver: true }).start(() => {
+        setIndex((prev) => (prev + 1) % slides.length);
+        Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+      });
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length, fadeAnim]);
+
+  if (slides.length === 0) {
+    return (
+      <View style={styles.heroWrap}>
+        <View style={[styles.heroSlide, styles.heroFallback]}>
+          <Text style={styles.heroFallbackBrand}>
+            NR <Text style={{ fontWeight: '300', color: 'rgba(255,255,255,0.7)' }}>MotorMarket</Text>
+          </Text>
+          <Text style={styles.heroFallbackTag}>Find your perfect ride.</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const item = slides[Math.min(index, slides.length - 1)];
+  const image = item?.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : null;
+
+  return (
+    <View style={styles.heroWrap}>
+      <Animated.View style={[styles.heroSlide, { opacity: fadeAnim }]}>
+        {image ? (
+          <Image source={{ uri: image }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        ) : (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surfaceAlt }]} />
+        )}
+        <View style={styles.heroScrim} />
+        <View style={styles.heroTextBg} />
+        <View style={styles.heroContent}>
+          <Text style={styles.heroEyebrow}>Featured Inventory</Text>
+          <Text style={styles.heroTitle}>
+            {item.year} {item.make} <Text style={{ fontWeight: '400' }}>{item.model}</Text>
+          </Text>
+          <View style={styles.heroMetaRow}>
+            <Text style={styles.heroPrice}>
+              ${(item.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </Text>
+            <View style={styles.financeChip}>
+              <Text style={styles.financeChipText}>Financing Available</Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.heroCta} onPress={() => onSelect(item)}>
+            <Text style={styles.heroCtaText}>View Details →</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+
+      {slides.length > 1 && (
+        <View style={styles.heroDots}>
+          {slides.map((_, i) => (
+            <TouchableOpacity
+              key={i}
+              onPress={() => setIndex(i)}
+              hitSlop={{ top: 10, bottom: 10, left: 6, right: 6 }}
+              style={[styles.heroDot, i === index && styles.heroDotActive]}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function FeedScreen() {
   const { colors, isDark, toggle } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [feed, setFeed] = useState<any[]>([]);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<any | null>(null); 
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null); 
+  const [selectedListing, setSelectedListing] = useState<any | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(DRAWER_WIDTH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -44,12 +180,12 @@ export default function FeedScreen() {
     try {
       const res = await fetch(RUST_API_URL);
       const data = await res.json();
-      
+
       // Safety net to prevent crashes if the API returns an error
       if (Array.isArray(data)) {
         setFeed(data);
       } else {
-        setFeed([]); 
+        setFeed([]);
       }
     } catch (error) {
       console.error("Error fetching feed:", error);
@@ -100,21 +236,35 @@ export default function FeedScreen() {
           </View>
         )}
       </View>
-      
+
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.year} {item.make} <Text style={{fontWeight: '400', color: colors.muted}}>{item.model}</Text></Text>
+
+        <View style={styles.specRow}>
+          <View style={styles.specItem}>
+            <Text style={styles.specLabel}>Year</Text>
+            <Text style={styles.specValue}>{item.year}</Text>
+          </View>
+          <View style={styles.specItem}>
+            <Text style={styles.specLabel}>Type</Text>
+            <Text style={styles.specValue}>
+              {item.vehicle_type ? `${item.vehicle_type.charAt(0).toUpperCase()}${item.vehicle_type.slice(1)}` : '—'}
+            </Text>
+          </View>
+        </View>
+
         <Text style={styles.cardPrice}>${(item.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
-        
+
         {/* Updated Web-Style Action Buttons */}
         <View style={styles.actionRow}>
-          <TouchableOpacity 
-            style={styles.detailsBtn} 
+          <TouchableOpacity
+            style={styles.detailsBtn}
             onPress={() => setSelectedListing(item)}
           >
-            <Text style={styles.detailsBtnText}>Details</Text>
+            <Text style={styles.detailsBtnText}>View</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.contactBtn} 
+          <TouchableOpacity
+            style={styles.contactBtn}
             onPress={() => alert(`Contacting ${item.seller_email}`)}
           >
             <Text style={styles.contactBtnText}>Contact</Text>
@@ -126,13 +276,13 @@ export default function FeedScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* PREMIUM DEALERSHIP HEADER */}
       {!selectedListing && (
         <View style={styles.headerContainer}>
-          <Image 
-            source={require('../../assets/logo.png')} 
-            style={styles.logo} 
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
             resizeMode="contain"
           />
           <View style={styles.headerTextContainer}>
@@ -156,11 +306,11 @@ export default function FeedScreen() {
       <View style={styles.container}>
         {selectedListing ? (
           // --- DETAILS VIEW ---
-          <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+          <ScrollView contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={() => setSelectedListing(null)}>
               <Text style={styles.backButtonText}>← Back to Inventory</Text>
             </TouchableOpacity>
-            
+
             <View style={styles.detailImageContainer}>
               {selectedListing.image_urls && selectedListing.image_urls.length > 0 ? (
                 <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
@@ -178,13 +328,13 @@ export default function FeedScreen() {
             <View style={styles.detailContent}>
               <Text style={styles.detailTitle}>{selectedListing.year} {selectedListing.make} {selectedListing.model}</Text>
               <Text style={styles.detailPrice}>${(selectedListing.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
-              
+
               {selectedListing.vehicle_type && <Text style={styles.detailType}>Category: {selectedListing.vehicle_type}</Text>}
-              
+
               <View style={styles.divider} />
               <Text style={styles.detailSectionTitle}>Description</Text>
               <Text style={styles.detailDescription}>{selectedListing.description || "No description provided."}</Text>
-              
+
               <View style={styles.divider} />
               <Text style={styles.detailSectionTitle}>Seller Contact</Text>
               <Text style={styles.detailSellerEmail}>{selectedListing.seller_email}</Text>
@@ -192,69 +342,149 @@ export default function FeedScreen() {
           </ScrollView>
         ) : (
           // --- MAIN FEED VIEW ---
-          <FlatList 
-            data={filteredFeed} 
-            keyExtractor={(item) => item.id} 
-            renderItem={renderFeedItem} 
-            contentContainerStyle={{ paddingBottom: 20 }} 
-            refreshing={isLoadingFeed} 
-            onRefresh={fetchFeed} 
-            showsVerticalScrollIndicator={false} 
-            
-            // Adding the Hero Banner & Filters as a FlatList Header
+          <FlatList
+            data={filteredFeed}
+            keyExtractor={(item) => item.id}
+            renderItem={renderFeedItem}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            refreshing={isLoadingFeed}
+            onRefresh={fetchFeed}
+            showsVerticalScrollIndicator={false}
+
+            // Homepage concept sections, adapted from scratchpad/homepage.html,
+            // wired to real listings via the FlatList header.
             ListHeaderComponent={(
               <View>
-                {/* HERO BANNER */}
-                <ImageBackground 
-                  source={{ uri: 'https://images.unsplash.com/photo-1562426509-5044a121aa49?q=80&w=2070&auto=format&fit=crop' }} 
-                  style={styles.heroBanner}
-                  imageStyle={{ borderRadius: 16 }}
-                >
-                  <View style={styles.heroOverlay}>
-                    <Text style={styles.heroTitle}>
-                      Drive Your <Text style={{ color: colors.primary }}>Dream</Text>
-                    </Text>
+                <HeroCarousel listings={feed} colors={colors} styles={styles} onSelect={setSelectedListing} />
+
+                {/* TRUST PROMISE STRIP */}
+                <View style={styles.trustStrip}>
+                  {TRUST_ITEMS.map((t) => (
+                    <View key={t} style={styles.trustItem}>
+                      <Text style={styles.trustCheck}>✓</Text>
+                      <Text style={styles.trustText}>{t}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* VALUE PROPS */}
+                <View style={styles.paddedSection}>
+                  <Eyebrow styles={styles}>Why NR MotorMarket</Eyebrow>
+                  <Text style={styles.sectionTitle}>The easiest way to your next ride</Text>
+                  <View style={styles.valueProps}>
+                    {VALUE_PROPS.map((v) => (
+                      <View key={v.title} style={styles.valueCard}>
+                        <View style={styles.valueIconWrap}>
+                          <Text style={styles.valueIcon}>{v.icon}</Text>
+                        </View>
+                        <Text style={styles.valueTitle}>{v.title}</Text>
+                        <Text style={styles.valueBody}>{v.body}</Text>
+                      </View>
+                    ))}
                   </View>
-                </ImageBackground>
+                </View>
 
                 {/* SEARCH & FILTERS */}
-                <View style={styles.filterContainer}>
-                  <TextInput 
-                    style={styles.searchInput}
-                    placeholder="Search Make or Model..."
-                    placeholderTextColor={colors.muted}
-                    value={searchQuery} 
-                    onChangeText={setSearchQuery}
-                  />
-                  <View style={styles.filterRow}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typePills}>
-                      <TouchableOpacity onPress={() => setTypeFilter('All')} style={[styles.pill, typeFilter === 'All' && styles.pillActive]}>
-                        <Text style={[styles.pillText, typeFilter === 'All' && styles.pillTextActive]}>All</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setTypeFilter('car')} style={[styles.pill, typeFilter === 'car' && styles.pillActive]}>
-                        <Text style={[styles.pillText, typeFilter === 'car' && styles.pillTextActive]}>🚗 Cars</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => setTypeFilter('motorcycle')} style={[styles.pill, typeFilter === 'motorcycle' && styles.pillActive]}>
-                        <Text style={[styles.pillText, typeFilter === 'motorcycle' && styles.pillTextActive]}>🏍️ Bikes</Text>
-                      </TouchableOpacity>
-                    </ScrollView>
-                    <TextInput 
-                      style={styles.priceInput}
-                      placeholder="Max $"
+                <View style={styles.paddedSection}>
+                  <Eyebrow styles={styles}>Latest Arrivals</Eyebrow>
+                  <Text style={styles.sectionTitle}>Featured Inventory</Text>
+                  <View style={styles.filterContainer}>
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search Make or Model..."
                       placeholderTextColor={colors.muted}
-                      keyboardType="numeric" 
-                      value={maxPrice} 
-                      onChangeText={setMaxPrice}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
                     />
+                    <View style={styles.filterRow}>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typePills}>
+                        <TouchableOpacity onPress={() => setTypeFilter('All')} style={[styles.pill, typeFilter === 'All' && styles.pillActive]}>
+                          <Text style={[styles.pillText, typeFilter === 'All' && styles.pillTextActive]}>All</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setTypeFilter('car')} style={[styles.pill, typeFilter === 'car' && styles.pillActive]}>
+                          <Text style={[styles.pillText, typeFilter === 'car' && styles.pillTextActive]}>🚗 Cars</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setTypeFilter('motorcycle')} style={[styles.pill, typeFilter === 'motorcycle' && styles.pillActive]}>
+                          <Text style={[styles.pillText, typeFilter === 'motorcycle' && styles.pillTextActive]}>🏍️ Bikes</Text>
+                        </TouchableOpacity>
+                      </ScrollView>
+                      <TextInput
+                        style={styles.priceInput}
+                        placeholder="Max $"
+                        placeholderTextColor={colors.muted}
+                        keyboardType="numeric"
+                        value={maxPrice}
+                        onChangeText={setMaxPrice}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
             )}
-            
+
+            ListFooterComponent={(
+              <View>
+                {/* FINANCING BAND */}
+                <View style={styles.financeBand}>
+                  <View style={styles.financeBandAccent} />
+                  <View style={styles.financeBandContent}>
+                    <Eyebrow styles={styles}>Financing</Eyebrow>
+                    <Text style={styles.financeBandTitle}>Get pre-approved in minutes</Text>
+                    <Text style={styles.financeBandBody}>
+                      Good credit, bad credit, first-time buyer — we work with multiple lenders to get you behind the wheel. No pressure, no obligation.
+                    </Text>
+                    <View style={styles.financePoints}>
+                      {FINANCE_POINTS.map((p) => (
+                        <Text key={p} style={styles.financePoint}>✓ {p}</Text>
+                      ))}
+                    </View>
+                    <TouchableOpacity style={styles.applyBtn} onPress={() => alert('Financing application coming soon')}>
+                      <Text style={styles.applyBtnText}>Apply Now →</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* TRADE-IN */}
+                <View style={styles.paddedSection}>
+                  <View style={styles.tradeCard}>
+                    <Eyebrow styles={styles}>Trade-In & Sell</Eyebrow>
+                    <Text style={styles.tradeTitle}>We buy cars — even if you don't buy from us</Text>
+                    <Text style={styles.tradeBody}>
+                      Skip the hassle. Get a real cash offer for your current vehicle in 24 hours, and put it straight toward your next one.
+                    </Text>
+                    <TouchableOpacity style={styles.tradeBtn} onPress={() => alert('Trade-in valuation coming soon')}>
+                      <Text style={styles.tradeBtnText}>Value My Car →</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* BRAND STRIP */}
+                <View style={styles.brandStrip}>
+                  {BRANDS.map((b) => (
+                    <Text key={b} style={styles.brandText}>{b}</Text>
+                  ))}
+                </View>
+
+                {/* FOOTER */}
+                <View style={styles.footer}>
+                  <Text style={styles.footerBrand}>
+                    NR <Text style={styles.footerBrandLight}>MotorMarket</Text>
+                  </Text>
+                  <Text style={styles.footerTagline}>Find your perfect ride.</Text>
+                  <View style={styles.footerContactRow}>
+                    <Text style={styles.footerContactText}>📍 Phnom Penh, Cambodia</Text>
+                    <Text style={styles.footerContactText}>(888) 123-4567</Text>
+                  </View>
+                  <View style={styles.footerDivider} />
+                  <Text style={styles.footerCopyright}>© 2026 NR MotorMarket. All rights reserved.</Text>
+                </View>
+              </View>
+            )}
+
             ListEmptyComponent={
               !isLoadingFeed ? (
-                <View style={{ marginTop: 40, alignItems: 'center' }}>
-                  <Text style={{ color: colors.muted, fontSize: 16, fontWeight: 'bold' }}>No vehicles match your filters.</Text>
+                <View style={{ marginTop: 40, paddingHorizontal: 20, alignItems: 'center' }}>
+                  <Text style={{ color: colors.muted, fontSize: 16, fontWeight: 'bold', textAlign: 'center' }}>No vehicles match your filters.</Text>
                   <TouchableOpacity onPress={() => { setSearchQuery(""); setTypeFilter("All"); setMaxPrice(""); }} style={{ marginTop: 15 }}>
                     <Text style={{ color: colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>Clear Filters</Text>
                   </TouchableOpacity>
@@ -275,9 +505,9 @@ export default function FeedScreen() {
           <Animated.View style={[styles.drawerPanel, { width: DRAWER_WIDTH, transform: [{ translateX: slideAnim }] }]}>
             <SafeAreaView style={{ flex: 1 }}>
               <View style={styles.drawerHeader}>
-                <Image 
-                  source={require('../../assets/logo.png')} 
-                  style={styles.drawerLogo} 
+                <Image
+                  source={require('../../assets/logo.png')}
+                  style={styles.drawerLogo}
                   resizeMode="contain"
                 />
                 <TouchableOpacity onPress={closeMenu} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -287,9 +517,9 @@ export default function FeedScreen() {
 
               <View style={styles.drawerItems}>
                 {menuItems.map((item) => (
-                  <TouchableOpacity 
-                    key={item.label} 
-                    style={styles.drawerItem} 
+                  <TouchableOpacity
+                    key={item.label}
+                    style={styles.drawerItem}
                     onPress={() => { closeMenu(); item.onPress(); }}
                   >
                     <Text style={styles.drawerItemIcon}>{item.icon}</Text>
@@ -297,10 +527,10 @@ export default function FeedScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-              
+
               {/* Spacer to push contact info to the bottom */}
               <View style={{ flex: 1 }} />
-              
+
               {/* Contact Footer pulled from Web Layout */}
               <View style={styles.drawerFooter}>
                 <Text style={styles.drawerContactPhone}>(888) 123-4567</Text>
@@ -331,7 +561,7 @@ export default function FeedScreen() {
 
 const createStyles = (c: ThemeColors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: c.bg },
-  container: { flex: 1, paddingHorizontal: 16 },
+  container: { flex: 1 },
 
   // --- PREMIUM HEADER ---
   headerContainer: {
@@ -405,33 +635,50 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   drawerContactPhone: { fontSize: 20, fontWeight: '900', color: c.text, marginBottom: 4 },
   drawerContactLocation: { fontSize: 12, color: c.muted, fontWeight: '600' },
 
-  // --- HERO BANNER ---
-  heroBanner: {
-    width: '100%',
-    height: 180,
-    marginTop: 10,
-    marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: c.overlay,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#ffffff',
-    textTransform: 'uppercase',
-    letterSpacing: -0.5,
-    textAlign: 'center',
-  },
+  // --- SHARED SECTION HELPERS ---
+  paddedSection: { paddingHorizontal: 16, marginBottom: 28 },
+  eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  eyebrowLine: { width: 18, height: 2, borderRadius: 1, backgroundColor: c.primary },
+  eyebrowText: { fontSize: 11, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase', color: c.primary },
+  sectionTitle: { fontSize: 22, fontWeight: '900', color: c.text, textTransform: 'uppercase', letterSpacing: -0.5, marginBottom: 16 },
+
+  // --- HERO CAROUSEL (always dark, per design) ---
+  heroWrap: { width: '100%', height: 340, backgroundColor: '#0A0C0F', position: 'relative', marginBottom: 24, overflow: 'hidden' },
+  heroSlide: { ...StyleSheet.absoluteFill },
+  heroFallback: { alignItems: 'center', justifyContent: 'center' },
+  heroFallbackBrand: { fontSize: 30, fontWeight: '900', color: '#fff', textTransform: 'uppercase', letterSpacing: -0.5 },
+  heroFallbackTag: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 8 },
+  heroScrim: { ...StyleSheet.absoluteFill, backgroundColor: c.overlay },
+  heroTextBg: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '62%', backgroundColor: 'rgba(0,0,0,0.55)' },
+  heroContent: { position: 'absolute', left: 20, right: 20, bottom: 36 },
+  heroEyebrow: { fontSize: 11, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginBottom: 8 },
+  heroTitle: { fontSize: 26, fontWeight: '900', color: '#fff', textTransform: 'uppercase', letterSpacing: -0.5, marginBottom: 10 },
+  heroMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' },
+  heroPrice: { fontSize: 24, fontWeight: '900', color: c.primary },
+  financeChip: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  financeChipText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  heroCta: { backgroundColor: c.primary, alignSelf: 'flex-start', paddingHorizontal: 22, paddingVertical: 12, borderRadius: 999 },
+  heroCtaText: { color: c.onPrimary, fontWeight: '900', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5 },
+  heroDots: { position: 'absolute', left: 0, right: 0, bottom: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 },
+  heroDot: { width: 18, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.35)' },
+  heroDotActive: { backgroundColor: c.primary },
+
+  // --- TRUST PROMISE STRIP ---
+  trustStrip: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', backgroundColor: c.surfaceAlt, borderTopWidth: 1, borderBottomWidth: 1, borderColor: c.border, paddingVertical: 14, paddingHorizontal: 12, marginBottom: 24 },
+  trustItem: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 10, marginVertical: 4 },
+  trustCheck: { color: c.primary, fontWeight: '900', marginRight: 6, fontSize: 13 },
+  trustText: { color: c.muted, fontWeight: '700', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4 },
+
+  // --- VALUE PROPS ---
+  valueProps: { gap: 14 },
+  valueCard: { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 20 },
+  valueIconWrap: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.surfaceAlt, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  valueIcon: { fontSize: 20 },
+  valueTitle: { fontSize: 16, fontWeight: '800', color: c.text, marginBottom: 4 },
+  valueBody: { fontSize: 13, color: c.muted, lineHeight: 19 },
 
   // --- SEARCH & FILTERS (RED THEME) ---
-  filterContainer: { marginBottom: 20 },
+  filterContainer: { marginBottom: 0 },
   searchInput: { backgroundColor: c.surface, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: c.border, marginBottom: 12, fontSize: 16, fontWeight: '500', color: c.text },
   filterRow: { flexDirection: 'row', alignItems: 'center' },
   typePills: { flex: 1, marginRight: 10 },
@@ -442,7 +689,7 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   priceInput: { width: 90, backgroundColor: c.surface, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, fontSize: 14, textAlign: 'center', fontWeight: '600', color: c.text },
 
   // --- VEHICLE CARDS ---
-  card: { backgroundColor: c.surface, borderRadius: 16, marginBottom: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 3 },
+  card: { backgroundColor: c.surface, borderRadius: 16, marginHorizontal: 16, marginBottom: 24, overflow: 'hidden', borderWidth: 1, borderColor: c.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 3 },
   cardImage: { width: '100%', height: 220, backgroundColor: c.bg },
   placeholderImage: { alignItems: 'center', justifyContent: 'center' },
   placeholderText: { color: c.muted, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
@@ -453,6 +700,12 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   cardTitle: { fontSize: 20, fontWeight: '900', color: c.text, marginBottom: 4, textTransform: 'uppercase' },
   cardPrice: { fontSize: 26, fontWeight: '900', color: c.primary, marginBottom: 16 },
 
+  // Spec row (Year / Type only — no mileage/fuel/transmission in the real data)
+  specRow: { flexDirection: 'row', gap: 24, borderTopWidth: 1, borderTopColor: c.border, marginTop: 10, paddingTop: 10, marginBottom: 12 },
+  specItem: { flexDirection: 'column' },
+  specLabel: { fontSize: 10, fontWeight: '800', color: c.muted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 2 },
+  specValue: { fontSize: 13, fontWeight: '700', color: c.text },
+
   // Action Buttons
   actionRow: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: c.border, paddingTop: 16 },
   detailsBtn: { flex: 1, backgroundColor: c.surfaceAlt, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
@@ -460,7 +713,40 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   contactBtn: { flex: 1, backgroundColor: c.contactBg, paddingVertical: 12, borderRadius: 10, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 },
   contactBtnText: { color: c.onContact, fontWeight: '800', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
 
+  // --- FINANCING BAND ---
+  financeBand: { flexDirection: 'row', backgroundColor: c.surfaceAlt, marginBottom: 24, overflow: 'hidden' },
+  financeBandAccent: { width: 5, backgroundColor: c.primary },
+  financeBandContent: { flex: 1, padding: 24 },
+  financeBandTitle: { fontSize: 22, fontWeight: '900', color: c.text, textTransform: 'uppercase', letterSpacing: -0.5, marginTop: 4, marginBottom: 10 },
+  financeBandBody: { fontSize: 14, color: c.muted, lineHeight: 21, marginBottom: 16 },
+  financePoints: { marginBottom: 20, gap: 8 },
+  financePoint: { fontSize: 13, fontWeight: '700', color: c.text },
+  applyBtn: { backgroundColor: c.primary, paddingVertical: 14, borderRadius: 999, alignItems: 'center', alignSelf: 'flex-start', paddingHorizontal: 24 },
+  applyBtnText: { color: c.onPrimary, fontWeight: '900', fontSize: 14, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+  // --- TRADE-IN ---
+  tradeCard: { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 22 },
+  tradeTitle: { fontSize: 18, fontWeight: '900', color: c.text, textTransform: 'uppercase', letterSpacing: -0.3, marginBottom: 8 },
+  tradeBody: { fontSize: 13, color: c.muted, lineHeight: 19, marginBottom: 16 },
+  tradeBtn: { backgroundColor: c.primary, paddingVertical: 13, borderRadius: 999, alignItems: 'center', alignSelf: 'flex-start', paddingHorizontal: 22 },
+  tradeBtnText: { color: c.onPrimary, fontWeight: '900', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+  // --- BRAND STRIP ---
+  brandStrip: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', backgroundColor: c.surfaceAlt, borderTopWidth: 1, borderBottomWidth: 1, borderColor: c.border, paddingVertical: 20, paddingHorizontal: 16, marginBottom: 24, gap: 20 },
+  brandText: { fontSize: 14, fontWeight: '900', letterSpacing: 0.5, textTransform: 'uppercase', color: c.muted },
+
+  // --- FOOTER ---
+  footer: { backgroundColor: c.surface, paddingHorizontal: 20, paddingVertical: 32, alignItems: 'center' },
+  footerBrand: { fontSize: 20, fontWeight: '900', color: c.text, letterSpacing: -0.5, textTransform: 'uppercase' },
+  footerBrandLight: { fontWeight: '300', color: c.muted },
+  footerTagline: { fontSize: 12, color: c.primary, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1, marginTop: 6 },
+  footerContactRow: { flexDirection: 'row', gap: 16, marginTop: 18, flexWrap: 'wrap', justifyContent: 'center' },
+  footerContactText: { fontSize: 13, color: c.muted, fontWeight: '600' },
+  footerDivider: { height: 1, backgroundColor: c.border, width: '100%', marginTop: 22, marginBottom: 14 },
+  footerCopyright: { fontSize: 11, color: c.muted, textAlign: 'center' },
+
   // --- DETAILS VIEW ---
+  detailScrollContent: { paddingHorizontal: 16, paddingBottom: 40 },
   backButton: { paddingVertical: 12, marginBottom: 5 },
   backButtonText: { color: c.primary, fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
   detailImageContainer: { borderRadius: 16, overflow: 'hidden', marginBottom: 20, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
