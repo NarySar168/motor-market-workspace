@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Vehicle } from "@/lib/types";
+import { useLanguage } from "@/context/LanguageContext";
 
 const SLIDE_MS = 5000;
 
 export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
+  const { t } = useLanguage();
   const slides = vehicles.slice(0, 3);
   const hasListings = slides.length > 0;
   const multiSlide = slides.length > 1;
@@ -59,20 +61,20 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
               <div className="max-w-[560px]">
                 <span className="inline-flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-slate-300">
                   <span className="h-[2px] w-[22px] bg-slate-300" />
-                  Featured Inventory
+                  {t("hero.eyebrow")}
                 </span>
                 <h2 className="mt-4 text-[clamp(2rem,5.2vw,3.5rem)] font-black uppercase leading-[0.98] tracking-tight text-balance">
                   {vehicle.make} <span className="text-red-500">{vehicle.model}</span>
                 </h2>
                 <p className="mt-3 text-[clamp(1rem,2vw,1.25rem)] font-medium text-slate-300">
-                  {vehicle.year} {vehicle.make} {vehicle.model} — ready to drive today.
+                  {vehicle.year} {vehicle.make} {vehicle.model} {t("hero.readyToDriveSuffix")}
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-4">
                   <span className="text-3xl font-black tracking-tight tabular-nums text-red-500">
                     ${(vehicle.price / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3.5 py-1.5 text-[0.74rem] font-bold text-slate-100">
-                    Financing Available
+                    {t("hero.financingAvailable")}
                   </span>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
@@ -80,7 +82,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
                     href={`/listing/${vehicle.id}`}
                     className="inline-flex items-center gap-2 rounded-full bg-red-600 px-6 py-3.5 text-sm font-extrabold text-white transition-colors hover:bg-red-700"
                   >
-                    View Details →
+                    {t("hero.viewDetails")} →
                   </Link>
                   <a
                     href={`mailto:${vehicle.seller_email}?subject=${encodeURIComponent(
@@ -88,7 +90,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
                     )}`}
                     className="inline-flex items-center gap-2 rounded-full border border-white/35 px-6 py-3.5 text-sm font-extrabold text-white transition-colors hover:border-white hover:bg-white/10"
                   >
-                    Book a Test Drive
+                    {t("hero.bookTestDrive")}
                   </a>
                 </div>
               </div>
@@ -100,10 +102,10 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
           <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black" />
           <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col items-center justify-center px-4 text-center md:px-8">
             <h2 className="text-[clamp(2rem,6vw,4rem)] font-black uppercase leading-[0.98] tracking-tight text-balance">
-              Drive Your <span className="text-red-500">Dream</span>
+              {t("hero.fallbackTitlePrefix")} <span className="text-red-500">{t("hero.fallbackTitleHighlight")}</span>
             </h2>
             <p className="mt-4 max-w-xl text-lg font-medium text-slate-300">
-              Unbeatable prices on premium pre-owned vehicles.
+              {t("hero.fallbackSubtitle")}
             </p>
           </div>
         </div>
@@ -114,7 +116,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
           <button
             type="button"
             onClick={() => setPlaying((p) => !p)}
-            aria-label={playing ? "Pause slideshow" : "Play slideshow"}
+            aria-label={playing ? t("hero.pauseSlideshow") : t("hero.playSlideshow")}
             className="absolute bottom-5 left-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white transition-colors hover:border-white md:left-6"
           >
             {playing ? "❚❚" : "▶"}
@@ -126,7 +128,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
                 key={vehicle.id}
                 type="button"
                 onClick={() => goTo(n)}
-                aria-label={`Go to slide ${n + 1}`}
+                aria-label={`${t("hero.goToSlide")} ${n + 1}`}
                 className="relative h-1 w-8 overflow-hidden rounded-full bg-white/30"
               >
                 {n === index && playing && (
@@ -145,7 +147,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
             <button
               type="button"
               onClick={() => goTo(index - 1)}
-              aria-label="Previous slide"
+              aria-label={t("hero.previousSlide")}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/35 text-lg text-white transition-colors hover:border-white"
             >
               ‹
@@ -153,7 +155,7 @@ export default function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              aria-label="Next slide"
+              aria-label={t("hero.nextSlide")}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/35 text-lg text-white transition-colors hover:border-white"
             >
               ›

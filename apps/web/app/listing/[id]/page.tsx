@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { LISTINGS_URL } from "@/lib/api";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ListingDetail() {
+  const { t } = useLanguage();
   const params = useParams();
   const id = params?.id as string;
 
@@ -53,8 +55,8 @@ export default function ListingDetail() {
   if (!listing) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">Vehicle Not Found</h1>
-        <Link href="/" className="text-blue-600 hover:underline">← Back to Inventory</Link>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">{t("listing.vehicleNotFound")}</h1>
+        <Link href="/" className="text-blue-600 hover:underline">← {t("listing.backToInventory")}</Link>
       </div>
     );
   }
@@ -65,7 +67,7 @@ export default function ListingDetail() {
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Link href="/" className="text-blue-600 font-semibold hover:text-blue-800 flex items-center gap-2">
-            <span>←</span> Back to Inventory
+            <span>←</span> {t("listing.backToInventory")}
           </Link>
         </div>
       </div>
@@ -92,18 +94,22 @@ export default function ListingDetail() {
                   {/* Hover Overlay for Zoom indication */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <span className="opacity-0 group-hover:opacity-100 bg-black/60 text-white text-sm font-bold py-2 px-4 rounded-full backdrop-blur-sm transition-opacity">
-                      Click to Zoom
+                      {t("listing.clickToZoom")}
                     </span>
                   </div>
                 </>
               ) : (
-                <div className="text-slate-400 dark:text-slate-400 font-medium">No Photos Available</div>
+                <div className="text-slate-400 dark:text-slate-400 font-medium">{t("listing.noPhotosAvailable")}</div>
               )}
-              
+
               {/* Vehicle Type Badge overlay */}
               {listing.vehicle_type && (
                 <div className="absolute top-4 left-4 bg-blue-600/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg">
-                  {listing.vehicle_type}
+                  {listing.vehicle_type.toLowerCase() === "car"
+                    ? t("inventory.type.car")
+                    : listing.vehicle_type.toLowerCase() === "motorcycle"
+                    ? t("inventory.type.motorcycle")
+                    : listing.vehicle_type}
                 </div>
               )}
             </div>
@@ -119,7 +125,7 @@ export default function ListingDetail() {
                       activeImageIndex === idx ? 'border-blue-600 opacity-100 ring-2 ring-blue-600/20' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={url} className="w-full h-full object-cover" alt={`Thumbnail ${idx + 1}`} />
+                    <img src={url} className="w-full h-full object-cover" alt={`${t("listing.thumbnail")} ${idx + 1}`} />
                   </button>
                 ))}
               </div>
@@ -131,7 +137,7 @@ export default function ListingDetail() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 sticky top-24 shadow-sm">
               <div className="mb-6">
                 <p className="text-slate-500 dark:text-slate-400 font-semibold tracking-wide uppercase text-sm mb-1">
-                  {listing.year} • Condition: New
+                  {listing.year} • {t("listing.condition")}
                 </p>
                 <h1 className="text-3xl font-black text-slate-900 dark:text-slate-50 leading-tight mb-4">
                   {listing.make} {listing.model}
@@ -140,23 +146,23 @@ export default function ListingDetail() {
                   <span className="text-4xl font-bold text-green-600 dark:text-green-400">
                     ${(listing.price / 100).toLocaleString(undefined, { minimumFractionDigits: 0 })}
                   </span>
-                  <span className="text-slate-400 dark:text-slate-400 font-medium mb-1 line-through">MSRP</span>
+                  <span className="text-slate-400 dark:text-slate-400 font-medium mb-1 line-through">{t("listing.msrp")}</span>
                 </div>
               </div>
 
               <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mb-6 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Status</span>
+                  <span className="text-slate-500 dark:text-slate-400">{t("listing.status")}</span>
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> In-Stock
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t("listing.inStock")}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Seller</span>
+                  <span className="text-slate-500 dark:text-slate-400">{t("listing.seller")}</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-50">{listing.seller_email}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">Stock #</span>
+                  <span className="text-slate-500 dark:text-slate-400">{t("listing.stockNumber")}</span>
                   <span className="font-mono text-slate-600 dark:text-slate-400">{listing.id.split('-')[0].toUpperCase()}</span>
                 </div>
               </div>
@@ -164,14 +170,14 @@ export default function ListingDetail() {
               {/* Dealership Action Buttons */}
               <div className="space-y-3">
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-colors shadow-md shadow-blue-600/20">
-                  Contact Seller
+                  {t("listing.contactSeller")}
                 </button>
                 <div className="flex gap-3">
                   <button className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors">
-                    Make Offer
+                    {t("listing.makeOffer")}
                   </button>
                   <button className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors">
-                    Test Ride
+                    {t("listing.testRide")}
                   </button>
                 </div>
               </div>
@@ -190,7 +196,7 @@ export default function ListingDetail() {
                 activeTab === 'overview' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
-              Overview
+              {t("listing.tabs.overview")}
             </button>
             <button
               onClick={() => setActiveTab('specs')}
@@ -198,7 +204,7 @@ export default function ListingDetail() {
                 activeTab === 'specs' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
-              Specifications
+              {t("listing.tabs.specs")}
             </button>
             <button
               onClick={() => setActiveTab('features')}
@@ -206,7 +212,7 @@ export default function ListingDetail() {
                 activeTab === 'features' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
               }`}
             >
-              Key Features
+              {t("listing.tabs.features")}
             </button>
           </div>
 
@@ -216,9 +222,9 @@ export default function ListingDetail() {
             {/* 1. Overview Tab */}
             {activeTab === 'overview' && (
               <div className="max-w-3xl">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">Vehicle Description</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">{t("listing.vehicleDescription")}</h2>
                 <div className="prose prose-slate dark:prose-invert prose-lg text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-relaxed">
-                  {listing.description || "No description provided by the seller."}
+                  {listing.description || t("listing.noDescription")}
                 </div>
               </div>
             )}
@@ -226,50 +232,50 @@ export default function ListingDetail() {
             {/* 2. Specifications Tab (Mock Data representing future DB columns) */}
             {activeTab === 'specs' && (
               <div className="max-w-4xl">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">Technical Specifications</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">{t("listing.technicalSpecs")}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                   {/* Spec Block */}
                   <div>
-                    <h3 className="text-sm font-bold uppercase text-slate-400 dark:text-slate-400 tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Engine</h3>
+                    <h3 className="text-sm font-bold uppercase text-slate-400 dark:text-slate-400 tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">{t("listing.engine.heading")}</h3>
                     <dl className="space-y-3">
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Type</dt><dd className="font-medium text-slate-900 dark:text-slate-50 text-right w-1/2">Liquid-Cooled Inline Four</dd></div>
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Displacement</dt><dd className="font-medium text-slate-900 dark:text-slate-50">599cc</dd></div>
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Transmission</dt><dd className="font-medium text-slate-900 dark:text-slate-50">Close-ratio 6-speed</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.engine.type.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50 text-right w-1/2">{t("listing.engine.type.value")}</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.engine.displacement.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50">{t("listing.engine.displacement.value")}</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.engine.transmission.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50">{t("listing.engine.transmission.value")}</dd></div>
                     </dl>
                   </div>
 
                   {/* Spec Block */}
                   <div>
-                    <h3 className="text-sm font-bold uppercase text-slate-400 dark:text-slate-400 tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">Dimensions</h3>
+                    <h3 className="text-sm font-bold uppercase text-slate-400 dark:text-slate-400 tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">{t("listing.dimensions.heading")}</h3>
                     <dl className="space-y-3">
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Seat Height</dt><dd className="font-medium text-slate-900 dark:text-slate-50">32.4 inches</dd></div>
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Fuel Capacity</dt><dd className="font-medium text-slate-900 dark:text-slate-50">4.8 gallons</dd></div>
-                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Curb Weight</dt><dd className="font-medium text-slate-900 dark:text-slate-50">419 lbs</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.dimensions.seatHeight.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50">{t("listing.dimensions.seatHeight.value")}</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.dimensions.fuelCapacity.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50">{t("listing.dimensions.fuelCapacity.value")}</dd></div>
+                      <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">{t("listing.dimensions.curbWeight.label")}</dt><dd className="font-medium text-slate-900 dark:text-slate-50">{t("listing.dimensions.curbWeight.value")}</dd></div>
                     </dl>
                   </div>
 
                 </div>
-                <p className="text-xs text-slate-400 dark:text-slate-400 mt-8 italic">* Specifications shown are representative examples. Actual vehicle specs may vary.</p>
+                <p className="text-xs text-slate-400 dark:text-slate-400 mt-8 italic">{t("listing.specsDisclaimer")}</p>
               </div>
             )}
 
             {/* 3. Features Tab */}
             {activeTab === 'features' && (
               <div className="max-w-4xl">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">Highlighted Features</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">{t("listing.highlightedFeatures")}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">Advanced Aerodynamics</h4>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Designed to reduce drag and increase high-speed stability on the track or the street.</p>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">{t("listing.feature1.title")}</h4>
+                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{t("listing.feature1.body")}</p>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">Electronic Steering Damper</h4>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Automatically adjusts damping force based on vehicle speed for optimal handling.</p>
+                    <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">{t("listing.feature2.title")}</h4>
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{t("listing.feature2.body")}</p>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">Radial-Mounted Brakes</h4>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Provides superior feel and immense stopping power when you need it most.</p>
+                    <h4 className="font-bold text-slate-900 dark:text-slate-50 mb-2">{t("listing.feature3.title")}</h4>
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{t("listing.feature3.body")}</p>
                   </div>
                 </div>
               </div>
@@ -287,11 +293,11 @@ export default function ListingDetail() {
           onClick={() => setZoomedImage(null)}
         >
           <button className="absolute top-6 right-6 text-white font-bold text-xl hover:text-gray-300">
-            &times; Close
+            &times; {t("listing.close")}
           </button>
-          <img 
-            src={zoomedImage} 
-            alt="Zoomed Vehicle" 
+          <img
+            src={zoomedImage}
+            alt={t("listing.zoomedImageAlt")}
             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl cursor-default" 
             onClick={(e) => e.stopPropagation()} 
           />

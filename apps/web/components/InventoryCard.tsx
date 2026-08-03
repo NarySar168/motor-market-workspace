@@ -1,13 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import type { Vehicle } from "@/lib/types";
-
-function typeLabel(vehicleType?: string) {
-  if (!vehicleType) return null;
-  return vehicleType.charAt(0).toUpperCase() + vehicleType.slice(1).toLowerCase();
-}
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
-  const label = typeLabel(vehicle.vehicle_type);
+  const { t } = useLanguage();
+
+  const normalizedType = vehicle.vehicle_type?.toLowerCase();
+  const label =
+    normalizedType === "car"
+      ? t("inventory.type.car")
+      : normalizedType === "motorcycle"
+      ? t("inventory.type.motorcycle")
+      : vehicle.vehicle_type
+      ? vehicle.vehicle_type.charAt(0).toUpperCase() + vehicle.vehicle_type.slice(1).toLowerCase()
+      : null;
   const hasImage = vehicle.image_urls && vehicle.image_urls.length > 0;
 
   return (
@@ -22,7 +30,7 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-slate-700 text-xs font-bold uppercase tracking-widest text-slate-400 dark:bg-slate-800">
-            No Photo
+            {t("inventory.noPhoto")}
           </div>
         )}
         {label && (
@@ -42,7 +50,7 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
         <div className="mt-2.5 flex flex-wrap gap-3.5 border-t border-slate-200 pt-2.5 dark:border-slate-800">
           <div className="flex flex-col gap-0.5">
             <span className="text-[0.56rem] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              Year
+              {t("inventory.year")}
             </span>
             <span className="text-[0.82rem] font-bold tabular-nums text-slate-900 dark:text-slate-50">
               {vehicle.year}
@@ -51,7 +59,7 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
           {label && (
             <div className="flex flex-col gap-0.5">
               <span className="text-[0.56rem] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                Type
+                {t("inventory.type")}
               </span>
               <span className="text-[0.82rem] font-bold text-slate-900 dark:text-slate-50">{label}</span>
             </div>
@@ -67,13 +75,13 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
               href={`/listing/${vehicle.id}`}
               className="rounded-lg bg-slate-100 px-3.5 py-2 text-[0.68rem] font-black uppercase tracking-wider text-slate-900 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
-              View
+              {t("inventory.view")}
             </Link>
             <a
               href={`mailto:${vehicle.seller_email}`}
               className="rounded-lg bg-red-600 px-3.5 py-2 text-[0.68rem] font-black uppercase tracking-wider text-white transition-colors hover:bg-red-700"
             >
-              Contact
+              {t("inventory.contact")}
             </a>
           </div>
         </div>

@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <Tabs screenOptions={{
@@ -14,15 +16,15 @@ export default function TabLayout() {
     }}>
       <Tabs.Screen
         name="post"
-        options={{ title: 'Post', tabBarIcon: () => <Text style={{ fontSize: 20 }}>📷</Text> }}
+        options={{ title: t('nav.post'), tabBarIcon: () => <Text style={{ fontSize: 20 }}>📷</Text> }}
       />
       <Tabs.Screen
         name="index"
-        options={{ title: 'Feed', tabBarIcon: () => <Text style={{ fontSize: 20 }}>🚗</Text> }}
+        options={{ title: t('nav.feed'), tabBarIcon: () => <Text style={{ fontSize: 20 }}>🚗</Text> }}
       />
       <Tabs.Screen
         name="admin"
-        options={{ title: 'Admin', tabBarIcon: () => <Text style={{ fontSize: 20 }}>⚙️</Text> }}
+        options={{ title: t('nav.admin'), tabBarIcon: () => <Text style={{ fontSize: 20 }}>⚙️</Text> }}
       />
     </Tabs>
   );

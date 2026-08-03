@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image,
 import { LISTINGS_URL } from '../../constants/api';
 import { useTheme } from '../../context/ThemeContext';
 import { ThemeColors } from '../../constants/theme';
+import { useLanguage } from '../../context/LanguageContext';
+import { LANGS } from '../../constants/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = Math.min(300, SCREEN_WIDTH * 0.78);
@@ -10,34 +12,41 @@ const RUST_API_URL = LISTINGS_URL;
 
 // Homepage concept content — kept generic/honest, no fabricated APR numbers,
 // star ratings, or "X sold" style claims. See scratchpad/homepage.html source.
-const TRUST_ITEMS = [
-  'Every Vehicle Inspected',
-  'Financing · All Credit',
-  '24-Hour Cash Offers',
-  'Transparent Pricing',
-  'Locally Owned · Phnom Penh',
+// Text below is resolved via translation keys (constants/i18n.ts) at render
+// time so it stays in sync with the active language.
+const TRUST_ITEM_KEYS = [
+  'trust.inspected',
+  'trust.financing',
+  'trust.cashOffers',
+  'trust.pricing',
+  'trust.locallyOwned',
 ];
 
-const VALUE_PROPS = [
+const VALUE_PROP_KEYS = [
   {
     icon: '🔍',
-    title: 'Search Inventory',
-    body: 'Every vehicle is inspected for reliability before it hits the lot. Browse cars and motorcycles you can trust.',
+    titleKey: 'valueProps.search.title',
+    bodyKey: 'valueProps.search.body',
   },
   {
     icon: '🏬',
-    title: 'Visit the Showroom',
-    body: 'No pressure, no gimmicks. Come see every vehicle in person at our Phnom Penh showroom and take it for a spin.',
+    titleKey: 'valueProps.visit.title',
+    bodyKey: 'valueProps.visit.body',
   },
   {
     icon: '🔑',
-    title: 'Book a Test Drive',
-    body: 'The best way to decide is to feel it. Reserve a test drive online in under a minute.',
+    titleKey: 'valueProps.testDrive.title',
+    bodyKey: 'valueProps.testDrive.body',
   },
 ];
 
-const FINANCE_POINTS = ['All credit welcome', 'Soft-check, no score impact', 'Quick decision'];
+const FINANCE_POINT_KEYS = [
+  'financing.point.allCredit',
+  'financing.point.softCheck',
+  'financing.point.quickDecision',
+];
 
+// Proper nouns — never translated.
 const BRANDS = ['Toyota', 'Honda', 'BMW', 'Lexus', 'Ford', 'Audi', 'Hyundai'];
 
 function Eyebrow({ children, styles }: { children: React.ReactNode; styles: any }) {
@@ -62,6 +71,7 @@ function HeroCarousel({
   styles: any;
   onSelect: (item: any) => void;
 }) {
+  const { t } = useLanguage();
   const slides = (Array.isArray(listings) ? listings : []).slice(0, 3);
   const [index, setIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -90,7 +100,7 @@ function HeroCarousel({
           <Text style={styles.heroFallbackBrand}>
             NR <Text style={{ fontWeight: '300', color: 'rgba(255,255,255,0.7)' }}>MotorMarket</Text>
           </Text>
-          <Text style={styles.heroFallbackTag}>Find your perfect ride.</Text>
+          <Text style={styles.heroFallbackTag}>{t('common.tagline')}</Text>
         </View>
       </View>
     );
@@ -110,7 +120,7 @@ function HeroCarousel({
         <View style={styles.heroScrim} />
         <View style={styles.heroTextBg} />
         <View style={styles.heroContent}>
-          <Text style={styles.heroEyebrow}>Featured Inventory</Text>
+          <Text style={styles.heroEyebrow}>{t('hero.eyebrow')}</Text>
           <Text style={styles.heroTitle}>
             {item.year} {item.make} <Text style={{ fontWeight: '400' }}>{item.model}</Text>
           </Text>
@@ -119,11 +129,11 @@ function HeroCarousel({
               ${(item.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </Text>
             <View style={styles.financeChip}>
-              <Text style={styles.financeChipText}>Financing Available</Text>
+              <Text style={styles.financeChipText}>{t('hero.financingAvailable')}</Text>
             </View>
           </View>
           <TouchableOpacity style={styles.heroCta} onPress={() => onSelect(item)}>
-            <Text style={styles.heroCtaText}>View Details →</Text>
+            <Text style={styles.heroCtaText}>{t('hero.viewDetails')} →</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -146,6 +156,7 @@ function HeroCarousel({
 
 export default function FeedScreen() {
   const { colors, isDark, toggle } = useTheme();
+  const { t, lang, setLang } = useLanguage();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [feed, setFeed] = useState<any[]>([]);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
@@ -212,13 +223,21 @@ export default function FeedScreen() {
 
   // Updated to match the Web Layout Navigation exactly
   const menuItems = [
-    { label: 'Home', icon: '🏠', onPress: () => setSelectedListing(null) },
-    { label: 'Inventory', icon: '🚗', onPress: () => setSelectedListing(null) },
-    { label: 'Financing', icon: '💳', onPress: () => alert('Navigate to Financing') },
-    { label: 'About Us', icon: 'ℹ️', onPress: () => alert('Navigate to About Us') },
-    { label: 'Admin Access', icon: '⚙️', onPress: () => alert('Navigate to Admin screen') },
-    { label: 'Dark Mode', icon: isDark ? '☀️' : '🌙', onPress: () => toggle() },
+    { key: 'home', label: t('nav.home'), icon: '🏠', onPress: () => setSelectedListing(null) },
+    { key: 'inventory', label: t('nav.inventory'), icon: '🚗', onPress: () => setSelectedListing(null) },
+    { key: 'financing', label: t('nav.financing'), icon: '💳', onPress: () => alert('Navigate to Financing') },
+    { key: 'aboutUs', label: t('nav.aboutUs'), icon: 'ℹ️', onPress: () => alert('Navigate to About Us') },
+    { key: 'adminAccess', label: t('nav.adminAccess'), icon: '⚙️', onPress: () => alert('Navigate to Admin screen') },
+    { key: 'darkMode', label: t('drawer.darkMode'), icon: isDark ? '☀️' : '🌙', onPress: () => toggle() },
   ];
+
+  const vehicleTypeLabel = (rawType: string | undefined) => {
+    if (!rawType) return '—';
+    const normalized = rawType.toLowerCase();
+    if (normalized === 'car') return t('inventory.type.car');
+    if (normalized === 'motorcycle') return t('inventory.type.motorcycle');
+    return rawType;
+  };
 
   const renderFeedItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={() => setSelectedListing(item)}>
@@ -227,12 +246,12 @@ export default function FeedScreen() {
           <Image source={{ uri: item.image_urls[0] }} style={styles.cardImage} />
         ) : (
           <View style={[styles.cardImage, styles.placeholderImage]}>
-            <Text style={styles.placeholderText}>No Photo</Text>
+            <Text style={styles.placeholderText}>{t('inventory.noPhoto')}</Text>
           </View>
         )}
         {item.vehicle_type && (
           <View style={styles.typeBadge}>
-            <Text style={styles.typeBadgeText}>{item.vehicle_type}</Text>
+            <Text style={styles.typeBadgeText}>{vehicleTypeLabel(item.vehicle_type)}</Text>
           </View>
         )}
       </View>
@@ -242,14 +261,12 @@ export default function FeedScreen() {
 
         <View style={styles.specRow}>
           <View style={styles.specItem}>
-            <Text style={styles.specLabel}>Year</Text>
+            <Text style={styles.specLabel}>{t('inventory.year')}</Text>
             <Text style={styles.specValue}>{item.year}</Text>
           </View>
           <View style={styles.specItem}>
-            <Text style={styles.specLabel}>Type</Text>
-            <Text style={styles.specValue}>
-              {item.vehicle_type ? `${item.vehicle_type.charAt(0).toUpperCase()}${item.vehicle_type.slice(1)}` : '—'}
-            </Text>
+            <Text style={styles.specLabel}>{t('inventory.type')}</Text>
+            <Text style={styles.specValue}>{vehicleTypeLabel(item.vehicle_type)}</Text>
           </View>
         </View>
 
@@ -261,13 +278,13 @@ export default function FeedScreen() {
             style={styles.detailsBtn}
             onPress={() => setSelectedListing(item)}
           >
-            <Text style={styles.detailsBtnText}>View</Text>
+            <Text style={styles.detailsBtnText}>{t('inventory.view')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.contactBtn}
             onPress={() => alert(`Contacting ${item.seller_email}`)}
           >
-            <Text style={styles.contactBtnText}>Contact</Text>
+            <Text style={styles.contactBtnText}>{t('inventory.contact')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -289,7 +306,7 @@ export default function FeedScreen() {
             <Text style={styles.brandTitle} numberOfLines={1} adjustsFontSizeToFit>
               NR <Text style={styles.brandLight}>MotorMarket</Text>
             </Text>
-            <Text style={styles.brandSubtitle}>Find your perfect ride.</Text>
+            <Text style={styles.brandSubtitle}>{t('common.tagline')}</Text>
           </View>
           <TouchableOpacity
             style={styles.menuButton}
@@ -308,7 +325,7 @@ export default function FeedScreen() {
           // --- DETAILS VIEW ---
           <ScrollView contentContainerStyle={styles.detailScrollContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={() => setSelectedListing(null)}>
-              <Text style={styles.backButtonText}>← Back to Inventory</Text>
+              <Text style={styles.backButtonText}>← {t('listing.backToInventory')}</Text>
             </TouchableOpacity>
 
             <View style={styles.detailImageContainer}>
@@ -321,7 +338,7 @@ export default function FeedScreen() {
                   ))}
                 </ScrollView>
               ) : (
-                <View style={[styles.detailImage, styles.placeholderImage]}><Text style={styles.placeholderText}>No Photos</Text></View>
+                <View style={[styles.detailImage, styles.placeholderImage]}><Text style={styles.placeholderText}>{t('listing.noPhotosAvailable')}</Text></View>
               )}
             </View>
 
@@ -329,14 +346,16 @@ export default function FeedScreen() {
               <Text style={styles.detailTitle}>{selectedListing.year} {selectedListing.make} {selectedListing.model}</Text>
               <Text style={styles.detailPrice}>${(selectedListing.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
 
-              {selectedListing.vehicle_type && <Text style={styles.detailType}>Category: {selectedListing.vehicle_type}</Text>}
+              {selectedListing.vehicle_type && (
+                <Text style={styles.detailType}>{t('inventory.type')}: {vehicleTypeLabel(selectedListing.vehicle_type)}</Text>
+              )}
 
               <View style={styles.divider} />
-              <Text style={styles.detailSectionTitle}>Description</Text>
-              <Text style={styles.detailDescription}>{selectedListing.description || "No description provided."}</Text>
+              <Text style={styles.detailSectionTitle}>{t('listing.vehicleDescription')}</Text>
+              <Text style={styles.detailDescription}>{selectedListing.description || t('listing.noDescription')}</Text>
 
               <View style={styles.divider} />
-              <Text style={styles.detailSectionTitle}>Seller Contact</Text>
+              <Text style={styles.detailSectionTitle}>{t('listing.seller')}</Text>
               <Text style={styles.detailSellerEmail}>{selectedListing.seller_email}</Text>
             </View>
           </ScrollView>
@@ -359,26 +378,26 @@ export default function FeedScreen() {
 
                 {/* TRUST PROMISE STRIP */}
                 <View style={styles.trustStrip}>
-                  {TRUST_ITEMS.map((t) => (
-                    <View key={t} style={styles.trustItem}>
+                  {TRUST_ITEM_KEYS.map((key) => (
+                    <View key={key} style={styles.trustItem}>
                       <Text style={styles.trustCheck}>✓</Text>
-                      <Text style={styles.trustText}>{t}</Text>
+                      <Text style={styles.trustText}>{t(key)}</Text>
                     </View>
                   ))}
                 </View>
 
                 {/* VALUE PROPS */}
                 <View style={styles.paddedSection}>
-                  <Eyebrow styles={styles}>Why NR MotorMarket</Eyebrow>
-                  <Text style={styles.sectionTitle}>The easiest way to your next ride</Text>
+                  <Eyebrow styles={styles}>{t('valueProps.eyebrow')}</Eyebrow>
+                  <Text style={styles.sectionTitle}>{t('valueProps.heading')}</Text>
                   <View style={styles.valueProps}>
-                    {VALUE_PROPS.map((v) => (
-                      <View key={v.title} style={styles.valueCard}>
+                    {VALUE_PROP_KEYS.map((v) => (
+                      <View key={v.titleKey} style={styles.valueCard}>
                         <View style={styles.valueIconWrap}>
                           <Text style={styles.valueIcon}>{v.icon}</Text>
                         </View>
-                        <Text style={styles.valueTitle}>{v.title}</Text>
-                        <Text style={styles.valueBody}>{v.body}</Text>
+                        <Text style={styles.valueTitle}>{t(v.titleKey)}</Text>
+                        <Text style={styles.valueBody}>{t(v.bodyKey)}</Text>
                       </View>
                     ))}
                   </View>
@@ -386,12 +405,12 @@ export default function FeedScreen() {
 
                 {/* SEARCH & FILTERS */}
                 <View style={styles.paddedSection}>
-                  <Eyebrow styles={styles}>Latest Arrivals</Eyebrow>
-                  <Text style={styles.sectionTitle}>Featured Inventory</Text>
+                  <Eyebrow styles={styles}>{t('inventory.eyebrow')}</Eyebrow>
+                  <Text style={styles.sectionTitle}>{t('inventory.heading')}</Text>
                   <View style={styles.filterContainer}>
                     <TextInput
                       style={styles.searchInput}
-                      placeholder="Search Make or Model..."
+                      placeholder={t('inventory.searchPlaceholder')}
                       placeholderTextColor={colors.muted}
                       value={searchQuery}
                       onChangeText={setSearchQuery}
@@ -399,18 +418,18 @@ export default function FeedScreen() {
                     <View style={styles.filterRow}>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typePills}>
                         <TouchableOpacity onPress={() => setTypeFilter('All')} style={[styles.pill, typeFilter === 'All' && styles.pillActive]}>
-                          <Text style={[styles.pillText, typeFilter === 'All' && styles.pillTextActive]}>All</Text>
+                          <Text style={[styles.pillText, typeFilter === 'All' && styles.pillTextActive]}>{t('inventory.filter.all')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setTypeFilter('car')} style={[styles.pill, typeFilter === 'car' && styles.pillActive]}>
-                          <Text style={[styles.pillText, typeFilter === 'car' && styles.pillTextActive]}>🚗 Cars</Text>
+                          <Text style={[styles.pillText, typeFilter === 'car' && styles.pillTextActive]}>🚗 {t('inventory.filter.cars')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setTypeFilter('motorcycle')} style={[styles.pill, typeFilter === 'motorcycle' && styles.pillActive]}>
-                          <Text style={[styles.pillText, typeFilter === 'motorcycle' && styles.pillTextActive]}>🏍️ Bikes</Text>
+                          <Text style={[styles.pillText, typeFilter === 'motorcycle' && styles.pillTextActive]}>🏍️ {t('inventory.filter.motorcycles')}</Text>
                         </TouchableOpacity>
                       </ScrollView>
                       <TextInput
                         style={styles.priceInput}
-                        placeholder="Max $"
+                        placeholder={t('inventory.maxPricePlaceholder')}
                         placeholderTextColor={colors.muted}
                         keyboardType="numeric"
                         value={maxPrice}
@@ -428,18 +447,18 @@ export default function FeedScreen() {
                 <View style={styles.financeBand}>
                   <View style={styles.financeBandAccent} />
                   <View style={styles.financeBandContent}>
-                    <Eyebrow styles={styles}>Financing</Eyebrow>
-                    <Text style={styles.financeBandTitle}>Get pre-approved in minutes</Text>
+                    <Eyebrow styles={styles}>{t('financing.eyebrow')}</Eyebrow>
+                    <Text style={styles.financeBandTitle}>{t('financing.heading')}</Text>
                     <Text style={styles.financeBandBody}>
-                      Good credit, bad credit, first-time buyer — we work with multiple lenders to get you behind the wheel. No pressure, no obligation.
+                      {t('financing.body')}
                     </Text>
                     <View style={styles.financePoints}>
-                      {FINANCE_POINTS.map((p) => (
-                        <Text key={p} style={styles.financePoint}>✓ {p}</Text>
+                      {FINANCE_POINT_KEYS.map((key) => (
+                        <Text key={key} style={styles.financePoint}>✓ {t(key)}</Text>
                       ))}
                     </View>
                     <TouchableOpacity style={styles.applyBtn} onPress={() => alert('Financing application coming soon')}>
-                      <Text style={styles.applyBtnText}>Apply Now →</Text>
+                      <Text style={styles.applyBtnText}>{t('financing.cta')} →</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -447,18 +466,18 @@ export default function FeedScreen() {
                 {/* TRADE-IN */}
                 <View style={styles.paddedSection}>
                   <View style={styles.tradeCard}>
-                    <Eyebrow styles={styles}>Trade-In & Sell</Eyebrow>
-                    <Text style={styles.tradeTitle}>We buy cars — even if you don't buy from us</Text>
+                    <Eyebrow styles={styles}>{t('tradeIn.eyebrow')}</Eyebrow>
+                    <Text style={styles.tradeTitle}>{t('tradeIn.heading')}</Text>
                     <Text style={styles.tradeBody}>
-                      Skip the hassle. Get a real cash offer for your current vehicle in 24 hours, and put it straight toward your next one.
+                      {t('tradeIn.body')}
                     </Text>
                     <TouchableOpacity style={styles.tradeBtn} onPress={() => alert('Trade-in valuation coming soon')}>
-                      <Text style={styles.tradeBtnText}>Value My Car →</Text>
+                      <Text style={styles.tradeBtnText}>{t('tradeIn.cta')} →</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* BRAND STRIP */}
+                {/* BRAND STRIP (proper nouns — never translated) */}
                 <View style={styles.brandStrip}>
                   {BRANDS.map((b) => (
                     <Text key={b} style={styles.brandText}>{b}</Text>
@@ -470,13 +489,13 @@ export default function FeedScreen() {
                   <Text style={styles.footerBrand}>
                     NR <Text style={styles.footerBrandLight}>MotorMarket</Text>
                   </Text>
-                  <Text style={styles.footerTagline}>Find your perfect ride.</Text>
+                  <Text style={styles.footerTagline}>{t('common.tagline')}</Text>
                   <View style={styles.footerContactRow}>
-                    <Text style={styles.footerContactText}>📍 Phnom Penh, Cambodia</Text>
+                    <Text style={styles.footerContactText}>{t('common.location')}</Text>
                     <Text style={styles.footerContactText}>(888) 123-4567</Text>
                   </View>
                   <View style={styles.footerDivider} />
-                  <Text style={styles.footerCopyright}>© 2026 NR MotorMarket. All rights reserved.</Text>
+                  <Text style={styles.footerCopyright}>{t('footer.copyright')}</Text>
                 </View>
               </View>
             )}
@@ -484,9 +503,9 @@ export default function FeedScreen() {
             ListEmptyComponent={
               !isLoadingFeed ? (
                 <View style={{ marginTop: 40, paddingHorizontal: 20, alignItems: 'center' }}>
-                  <Text style={{ color: colors.muted, fontSize: 16, fontWeight: 'bold', textAlign: 'center' }}>No vehicles match your filters.</Text>
+                  <Text style={{ color: colors.muted, fontSize: 16, fontWeight: 'bold', textAlign: 'center' }}>{t('inventory.noResults.body')}</Text>
                   <TouchableOpacity onPress={() => { setSearchQuery(""); setTypeFilter("All"); setMaxPrice(""); }} style={{ marginTop: 15 }}>
-                    <Text style={{ color: colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>Clear Filters</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 }}>{t('inventory.clearFilters')}</Text>
                   </TouchableOpacity>
                 </View>
               ) : null
@@ -518,14 +537,30 @@ export default function FeedScreen() {
               <View style={styles.drawerItems}>
                 {menuItems.map((item) => (
                   <TouchableOpacity
-                    key={item.label}
+                    key={item.key}
                     style={styles.drawerItem}
                     onPress={() => { closeMenu(); item.onPress(); }}
                   >
                     <Text style={styles.drawerItemIcon}>{item.icon}</Text>
-                    <Text style={[styles.drawerItemText, item.label === 'Admin Access' && { color: colors.primary }]}>{item.label}</Text>
+                    <Text style={[styles.drawerItemText, item.key === 'adminAccess' && { color: colors.primary }]}>{item.label}</Text>
                   </TouchableOpacity>
                 ))}
+              </View>
+
+              {/* LANGUAGE SWITCHER */}
+              <View style={styles.drawerLanguageSection}>
+                <Text style={styles.drawerLanguageLabel}>{t('drawer.language')}</Text>
+                <View style={styles.drawerLanguageRow}>
+                  {LANGS.map((l) => (
+                    <TouchableOpacity
+                      key={l.code}
+                      onPress={() => setLang(l.code)}
+                      style={[styles.langPill, lang === l.code && styles.langPillActive]}
+                    >
+                      <Text style={[styles.langPillText, lang === l.code && styles.langPillTextActive]}>{l.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               {/* Spacer to push contact info to the bottom */}
@@ -534,7 +569,7 @@ export default function FeedScreen() {
               {/* Contact Footer pulled from Web Layout */}
               <View style={styles.drawerFooter}>
                 <Text style={styles.drawerContactPhone}>(888) 123-4567</Text>
-                <Text style={styles.drawerContactLocation}>📍 Phnom Penh, Cambodia</Text>
+                <Text style={styles.drawerContactLocation}>{t('common.location')}</Text>
               </View>
 
             </SafeAreaView>
@@ -546,7 +581,7 @@ export default function FeedScreen() {
       <Modal visible={!!zoomedImage} transparent={true} animationType="fade">
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.modalCloseButton} onPress={() => setZoomedImage(null)}>
-            <Text style={styles.modalCloseText}>✕ Close</Text>
+            <Text style={styles.modalCloseText}>✕ {t('listing.close')}</Text>
           </TouchableOpacity>
           {zoomedImage && (
             <ScrollView contentContainerStyle={styles.modalScrollContent} maximumZoomScale={3} minimumZoomScale={1} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
@@ -634,6 +669,15 @@ const createStyles = (c: ThemeColors) => StyleSheet.create({
   drawerFooter: { padding: 20, borderTopWidth: 1, borderTopColor: c.border, alignItems: 'center', marginBottom: 20 },
   drawerContactPhone: { fontSize: 20, fontWeight: '900', color: c.text, marginBottom: 4 },
   drawerContactLocation: { fontSize: 12, color: c.muted, fontWeight: '600' },
+
+  // Drawer Language Switcher
+  drawerLanguageSection: { paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: c.surfaceAlt },
+  drawerLanguageLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase', color: c.muted, marginBottom: 10 },
+  drawerLanguageRow: { flexDirection: 'row', gap: 8 },
+  langPill: { flex: 1, paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: c.border, backgroundColor: c.surfaceAlt, alignItems: 'center' },
+  langPillActive: { backgroundColor: c.primary, borderColor: c.primary },
+  langPillText: { fontSize: 13, fontWeight: '700', color: c.text },
+  langPillTextActive: { color: c.onPrimary },
 
   // --- SHARED SECTION HELPERS ---
   paddedSection: { paddingHorizontal: 16, marginBottom: 28 },

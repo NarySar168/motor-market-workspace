@@ -10,10 +10,19 @@ import InventoryCard from "@/components/InventoryCard";
 import FinancingBand from "@/components/FinancingBand";
 import TradeIn from "@/components/TradeIn";
 import BrandStrip from "@/components/BrandStrip";
+import Eyebrow from "@/components/Eyebrow";
+import { useLanguage } from "@/context/LanguageContext";
 
 const CATEGORY_FILTERS = ["All", "Car", "Motorcycle"] as const;
 
+const FILTER_LABEL_KEYS: Record<(typeof CATEGORY_FILTERS)[number], string> = {
+  All: "inventory.filter.all",
+  Car: "inventory.filter.cars",
+  Motorcycle: "inventory.filter.motorcycles",
+};
+
 export default function Storefront() {
+  const { t } = useLanguage();
   const [listings, setListings] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +64,7 @@ export default function Storefront() {
       <div className="flex min-h-[70vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-red-200 border-t-red-600"></div>
-          <p className="font-medium text-slate-500 dark:text-slate-400">Loading inventory...</p>
+          <p className="font-medium text-slate-500 dark:text-slate-400">{t("inventory.loading")}</p>
         </div>
       </div>
     );
@@ -77,12 +86,9 @@ export default function Storefront() {
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="inline-flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-red-600 dark:text-red-500">
-                <span className="h-[2px] w-[22px] bg-red-600 dark:bg-red-500" />
-                Latest Arrivals
-              </span>
+              <Eyebrow>{t("inventory.eyebrow")}</Eyebrow>
               <h2 className="mt-2 text-[clamp(1.6rem,3.4vw,2.4rem)] font-black uppercase leading-tight tracking-tight text-slate-900 dark:text-slate-50">
-                Featured inventory
+                {t("inventory.heading")}
               </h2>
             </div>
           </div>
@@ -91,14 +97,14 @@ export default function Storefront() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <input
               type="text"
-              placeholder="Search make, model, or year..."
+              placeholder={t("inventory.searchPlaceholder")}
               className="flex-1 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500/30 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <input
               type="number"
-              placeholder="Max price ($)"
+              placeholder={t("inventory.maxPricePlaceholder")}
               className="w-full rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 outline-none transition-colors focus:border-red-500 focus:ring-2 focus:ring-red-500/30 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 sm:w-44"
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
@@ -117,7 +123,7 @@ export default function Storefront() {
                     : "border-slate-200 bg-white text-slate-500 hover:border-red-500 hover:text-red-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-red-500"
                 }`}
               >
-                {filter === "All" ? "All" : `${filter}s`}
+                {t(FILTER_LABEL_KEYS[filter])}
               </button>
             ))}
           </div>
@@ -126,10 +132,10 @@ export default function Storefront() {
           {filteredListings.length === 0 ? (
             <div className="mt-8 rounded-2xl border-2 border-dashed border-slate-200 bg-white py-24 text-center dark:border-slate-800 dark:bg-slate-900">
               <h3 className="mb-2 text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-50">
-                No vehicles found
+                {t("inventory.noResults.title")}
               </h3>
               <p className="mb-6 font-medium text-slate-500 dark:text-slate-400">
-                We couldn&apos;t find any matches for your current filters.
+                {t("inventory.noResults.body")}
               </p>
               <button
                 onClick={() => {
@@ -139,7 +145,7 @@ export default function Storefront() {
                 }}
                 className="rounded-full bg-red-50 px-8 py-4 font-black uppercase tracking-widest text-red-600 transition-colors hover:text-red-700 dark:bg-red-950 dark:text-red-400"
               >
-                Clear Filters
+                {t("inventory.clearFilters")}
               </button>
             </div>
           ) : (
